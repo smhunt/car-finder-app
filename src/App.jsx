@@ -1122,6 +1122,9 @@ export default function App() {
                   onDelete={() => { setCars(prev => prev.filter(c => c.id !== car.id)); setExpandedCard(null); }}
                   onStar={() => handleStarCar(car.id)}
                   onEdit={() => handleEditCar(car)}
+                  isSelected={selectedForCompare.includes(car.id)}
+                  onSelect={() => handleSelectForCompare(car.id)}
+                  compareMode={compareMode}
                 />
               ))
             )}
@@ -1153,6 +1156,15 @@ export default function App() {
         accept=".json"
         className="hidden"
       />
+
+      {/* Comparison Modal */}
+      {showCompareModal && (
+        <ComparisonModal
+          cars={carsToCompare}
+          onClose={() => setShowCompareModal(false)}
+          weights={weights}
+        />
+      )}
     </div>
   );
 }

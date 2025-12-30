@@ -2,6 +2,14 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.4.0] - 2024-12-30
+
+### Added
+- Comparison View for side-by-side vehicle comparison (up to 3 vehicles)
+- Compare mode with checkbox selection on car cards
+- Comparison table highlights best values in green
+- Compare button in header to toggle selection mode
+
 ## [0.3.0] - 2024-12-30
 
 ### Added

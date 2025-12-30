@@ -1,8 +1,18 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.3.0';
+export const APP_VERSION = '0.4.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.4.0',
+    date: '2024-12-30',
+    changes: [
+      'Added Comparison View for side-by-side vehicle comparison',
+      'Compare mode with checkbox selection for up to 3 vehicles',
+      'Comparison table highlights best values in green',
+      'Compare button in header to toggle selection mode',
+    ],
+  },
   {
     version: '0.3.0',
     date: '2024-12-30',
@@ -68,6 +78,7 @@ export const ROADMAP = [
     category: 'Completed',
     icon: '✅',
     items: [
+      { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'high' },
       { title: 'Listing URL Links', description: 'Save the dealer listing URL with each vehicle for quick access', priority: 'high' },
       { title: 'Import/Export Data', description: 'Export your listings to JSON and import them on another device', priority: 'high' },
     ],
@@ -77,7 +88,6 @@ export const ROADMAP = [
     icon: '📋',
     items: [
       { title: 'Price History Tracking', description: 'Track price changes over time for each listing', priority: 'medium' },
-      { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'medium' },
       { title: 'Custom Criteria', description: 'Add your own scoring criteria beyond the default 10', priority: 'low' },
       { title: 'Photo Attachments', description: 'Attach photos to each listing for reference', priority: 'low' },
     ],
