@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, TrendingDown, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare, History } from 'lucide-react';
 import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
 
 // ============ STORAGE CONFIGURATION ============
@@ -96,12 +96,12 @@ const COLOR_PRESETS = ['White', 'Black', 'Grey', 'Silver', 'Blue', 'Red', 'Green
 const REMOTE_START_OPTIONS = ['Fob, App', 'App', 'Fob', 'None'];
 
 const SAMPLE_CARS = [
-  { id: 1, make: 'Chevrolet', model: 'Bolt EUV', year: 2023, trim: 'LT', trimLevel: 2, dealer: 'Park Lane Cadillac', price: 22995, odo: 62000, color: 'Grey', range: 397, length: 169, heatPump: false, remoteStart: 'Fob, App', location: 'Sarnia', distance: 4, damage: 0, notes: '', url: '', starred: false },
-  { id: 2, make: 'Kia', model: 'Niro EV', year: 2020, trim: 'SX Touring', trimLevel: 3, dealer: 'Titanium Auto Sales', price: 23990, odo: 75000, color: 'Gravity Blue', range: 385, length: 171, heatPump: true, remoteStart: 'App', location: 'Springbank', distance: 1, damage: 0, notes: '', url: '', starred: false },
-  { id: 3, make: 'Hyundai', model: 'Kona Electric', year: 2021, trim: 'Preferred', trimLevel: 2, dealer: 'Stricklands', price: 24650, odo: 37000, color: 'White', range: 415, length: 164, heatPump: true, remoteStart: 'Fob, App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false },
-  { id: 4, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'MacMaster GM', price: 25495, odo: 91000, color: 'White', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Airport', distance: 1, damage: 0, notes: '', url: '', starred: false },
-  { id: 5, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'Audi London', price: 25495, odo: 46450, color: 'Grey', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Wharncliffe South', distance: 1, damage: 0, notes: '', url: '', starred: false },
-  { id: 6, make: 'Nissan', model: 'Leaf', year: 2023, trim: 'SL Plus', trimLevel: 3, dealer: 'Stricklands Toyota', price: 26888, odo: 8743, color: 'White', range: 342, length: 176, heatPump: true, remoteStart: 'App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false },
+  { id: 1, make: 'Chevrolet', model: 'Bolt EUV', year: 2023, trim: 'LT', trimLevel: 2, dealer: 'Park Lane Cadillac', price: 22995, odo: 62000, color: 'Grey', range: 397, length: 169, heatPump: false, remoteStart: 'Fob, App', location: 'Sarnia', distance: 4, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 24995, date: '2024-12-15' }, { price: 23995, date: '2024-12-22' }, { price: 22995, date: '2024-12-28' }] },
+  { id: 2, make: 'Kia', model: 'Niro EV', year: 2020, trim: 'SX Touring', trimLevel: 3, dealer: 'Titanium Auto Sales', price: 23990, odo: 75000, color: 'Gravity Blue', range: 385, length: 171, heatPump: true, remoteStart: 'App', location: 'Springbank', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 23990, date: '2024-12-20' }] },
+  { id: 3, make: 'Hyundai', model: 'Kona Electric', year: 2021, trim: 'Preferred', trimLevel: 2, dealer: 'Stricklands', price: 24650, odo: 37000, color: 'White', range: 415, length: 164, heatPump: true, remoteStart: 'Fob, App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 25500, date: '2024-12-10' }, { price: 24650, date: '2024-12-25' }] },
+  { id: 4, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'MacMaster GM', price: 25495, odo: 91000, color: 'White', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Airport', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 25495, date: '2024-12-18' }] },
+  { id: 5, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'Audi London', price: 25495, odo: 46450, color: 'Grey', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Wharncliffe South', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 26995, date: '2024-12-05' }, { price: 25995, date: '2024-12-15' }, { price: 25495, date: '2024-12-28' }] },
+  { id: 6, make: 'Nissan', model: 'Leaf', year: 2023, trim: 'SL Plus', trimLevel: 3, dealer: 'Stricklands Toyota', price: 26888, odo: 8743, color: 'White', range: 342, length: 176, heatPump: true, remoteStart: 'App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 27888, date: '2024-12-12' }, { price: 26888, date: '2024-12-26' }] },
 ];
 
 const DEFAULT_WEIGHTS = {
@@ -269,10 +269,123 @@ const WeightSlider = ({ config, value, onChange, totalWeight }) => {
   );
 };
 
+// Price History Component with mini chart
+const PriceHistory = ({ history, currentPrice }) => {
+  if (!history || history.length === 0) return null;
+
+  const sortedHistory = [...history].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const firstPrice = sortedHistory[0]?.price || currentPrice;
+  const totalChange = currentPrice - firstPrice;
+  const percentChange = firstPrice > 0 ? ((totalChange / firstPrice) * 100).toFixed(1) : 0;
+  const hasDropped = totalChange < 0;
+  const hasRisen = totalChange > 0;
+
+  // Calculate chart dimensions
+  const prices = sortedHistory.map(h => h.price);
+  const minPrice = Math.min(...prices) * 0.98;
+  const maxPrice = Math.max(...prices) * 1.02;
+  const priceRange = maxPrice - minPrice || 1;
+
+  // Generate SVG path for sparkline
+  const chartWidth = 120;
+  const chartHeight = 32;
+  const points = sortedHistory.map((entry, i) => {
+    const x = sortedHistory.length > 1 ? (i / (sortedHistory.length - 1)) * chartWidth : chartWidth / 2;
+    const y = chartHeight - ((entry.price - minPrice) / priceRange) * chartHeight;
+    return `${x},${y}`;
+  }).join(' ');
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div className="bg-fog rounded-xl p-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <History size={14} className="text-slate-400" />
+          <span className="text-xs font-medium text-slate-500">Price History</span>
+        </div>
+        {sortedHistory.length > 1 && (
+          <div className={`flex items-center gap-1 text-xs font-semibold ${hasDropped ? 'text-tally-mint' : hasRisen ? 'text-tally-coral' : 'text-slate-400'}`}>
+            {hasDropped ? <TrendingDown size={14} /> : hasRisen ? <TrendingUp size={14} /> : null}
+            <span>{hasDropped ? '-' : hasRisen ? '+' : ''}${Math.abs(totalChange).toLocaleString()}</span>
+            <span className="text-slate-400">({hasDropped ? '' : '+'}{percentChange}%)</span>
+          </div>
+        )}
+      </div>
+
+      {sortedHistory.length > 1 ? (
+        <>
+          {/* Sparkline Chart */}
+          <div className="mb-2">
+            <svg width={chartWidth} height={chartHeight} className="w-full" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
+              <polyline
+                points={points}
+                fill="none"
+                stroke={hasDropped ? '#10b981' : '#f87171'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {sortedHistory.map((entry, i) => {
+                const x = sortedHistory.length > 1 ? (i / (sortedHistory.length - 1)) * chartWidth : chartWidth / 2;
+                const y = chartHeight - ((entry.price - minPrice) / priceRange) * chartHeight;
+                return (
+                  <circle
+                    key={i}
+                    cx={x}
+                    cy={y}
+                    r="3"
+                    fill={hasDropped ? '#10b981' : '#f87171'}
+                  />
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Price History List */}
+          <div className="space-y-1">
+            {sortedHistory.slice().reverse().map((entry, i) => {
+              const prevPrice = i < sortedHistory.length - 1 ? sortedHistory[sortedHistory.length - 2 - i]?.price : null;
+              const change = prevPrice ? entry.price - prevPrice : 0;
+              return (
+                <div key={i} className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">{formatDate(entry.date)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-slate-600">${entry.price.toLocaleString()}</span>
+                    {change !== 0 && (
+                      <span className={`font-mono ${change < 0 ? 'text-tally-mint' : 'text-tally-coral'}`}>
+                        {change < 0 ? '-' : '+'}${Math.abs(change).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <div className="text-xs text-slate-400 text-center py-2">
+          No price changes recorded yet
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onEdit, breakdown, isSelected, onSelect, compareMode }) => {
   const getScoreColor = (s) => s >= 70 ? 'text-tally-mint' : s >= 50 ? 'text-amber-500' : 'text-tally-coral';
   const getRankBg = (r) => r === 1 ? 'bg-gradient-to-br from-amber-400 to-amber-500' : r === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : r === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-slate-500';
   const config = WEIGHT_CONFIG.reduce((acc, c) => ({ ...acc, [c.key]: c }), {});
+
+  // Calculate price change from history
+  const priceHistory = car.priceHistory || [];
+  const sortedHistory = [...priceHistory].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const firstPrice = sortedHistory[0]?.price;
+  const priceChange = firstPrice ? car.price - firstPrice : 0;
+  const hasPriceDropped = priceChange < 0;
 
   return (
     <div className={`tally-card mb-4 ${isExpanded ? 'ring-2 ring-tally-blue' : ''} ${car.starred ? 'ring-2 ring-amber-400' : ''} ${isSelected ? 'ring-2 ring-tally-mint' : ''}`}>
@@ -307,6 +420,11 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
           <div className="flex gap-4 mt-1 flex-wrap">
             <span className="flex items-center gap-1 text-sm text-slate-500">
               <DollarSign size={14} /> ${car.price.toLocaleString()}
+              {priceChange !== 0 && sortedHistory.length > 1 && (
+                <span className={`flex items-center gap-0.5 text-xs ${hasPriceDropped ? 'text-tally-mint' : 'text-tally-coral'}`}>
+                  {hasPriceDropped ? <TrendingDown size={12} /> : <TrendingUp size={12} />}
+                </span>
+              )}
             </span>
             <span className="flex items-center gap-1 text-sm text-slate-500">
               <Gauge size={14} /> {car.odo.toLocaleString()} km
@@ -360,16 +478,21 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
           )}
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="text-sm font-semibold text-slate-500 mb-3">Vehicle Details</h4>
-              <div className="grid gap-2 text-sm">
-                <div><span className="text-slate-400">Dealer:</span> <span className="text-charcoal">{car.dealer}</span></div>
-                <div><span className="text-slate-400">Color:</span> <span className="text-charcoal">{car.color}</span></div>
-                <div><span className="text-slate-400">Length:</span> <span className="text-charcoal">{car.length}"</span></div>
-                <div><span className="text-slate-400">Heat Pump:</span> <span className={car.heatPump ? 'text-tally-mint' : 'text-slate-400'}>{car.heatPump ? 'Yes' : 'No'}</span></div>
-                <div><span className="text-slate-400">Remote Start:</span> <span className="text-charcoal">{car.remoteStart}</span></div>
-                <div><span className="text-slate-400">Damage:</span> <span className={car.damage > 0 ? 'text-tally-coral' : 'text-tally-mint'}>{car.damage > 0 ? `$${car.damage.toLocaleString()}` : 'None'}</span></div>
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-semibold text-slate-500 mb-3">Vehicle Details</h4>
+                <div className="grid gap-2 text-sm">
+                  <div><span className="text-slate-400">Dealer:</span> <span className="text-charcoal">{car.dealer}</span></div>
+                  <div><span className="text-slate-400">Color:</span> <span className="text-charcoal">{car.color}</span></div>
+                  <div><span className="text-slate-400">Length:</span> <span className="text-charcoal">{car.length}"</span></div>
+                  <div><span className="text-slate-400">Heat Pump:</span> <span className={car.heatPump ? 'text-tally-mint' : 'text-slate-400'}>{car.heatPump ? 'Yes' : 'No'}</span></div>
+                  <div><span className="text-slate-400">Remote Start:</span> <span className="text-charcoal">{car.remoteStart}</span></div>
+                  <div><span className="text-slate-400">Damage:</span> <span className={car.damage > 0 ? 'text-tally-coral' : 'text-tally-mint'}>{car.damage > 0 ? `$${car.damage.toLocaleString()}` : 'None'}</span></div>
+                </div>
               </div>
+
+              {/* Price History Section */}
+              <PriceHistory history={car.priceHistory} currentPrice={car.price} />
             </div>
 
             <div>
@@ -480,13 +603,24 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newPrice = parseInt(formData.price) || 25000;
+    const today = new Date().toISOString().split('T')[0];
+
+    // Initialize or update price history
+    let priceHistory = formData.priceHistory || [];
+    if (!isEditing) {
+      // New car - initialize with current price
+      priceHistory = [{ price: newPrice, date: today }];
+    }
+
     const sanitizedData = {
       ...formData, id: formData.id || Date.now(),
       year: parseInt(formData.year) || 2024, trimLevel: parseInt(formData.trimLevel) || 2,
-      price: parseInt(formData.price) || 25000, odo: parseInt(formData.odo) || 50000,
+      price: newPrice, odo: parseInt(formData.odo) || 50000,
       range: parseInt(formData.range) || 400, length: parseInt(formData.length) || 170,
       distance: parseInt(formData.distance) || 1, damage: parseInt(formData.damage) || 0,
       notes: formData.notes || '', url: formData.url || '', starred: formData.starred || false,
+      priceHistory,
     };
     isEditing ? onUpdate(sanitizedData) : onAdd(sanitizedData);
     onClose();
@@ -886,7 +1020,30 @@ export default function App() {
   const existingDealers = useMemo(() => [...new Set(cars.map(c => c.dealer).filter(Boolean))], [cars]);
 
   const handleUpdateCar = (updatedCar) => {
-    setCars(prev => prev.map(c => c.id === updatedCar.id ? updatedCar : c));
+    setCars(prev => prev.map(c => {
+      if (c.id !== updatedCar.id) return c;
+
+      // Check if price has changed
+      const oldPrice = c.price;
+      const newPrice = updatedCar.price;
+      const today = new Date().toISOString().split('T')[0];
+
+      // Update price history if price changed
+      let priceHistory = updatedCar.priceHistory || c.priceHistory || [];
+      if (newPrice !== oldPrice) {
+        // Check if we already have an entry for today
+        const todayEntry = priceHistory.find(h => h.date === today);
+        if (todayEntry) {
+          // Update today's entry
+          priceHistory = priceHistory.map(h => h.date === today ? { ...h, price: newPrice } : h);
+        } else {
+          // Add new entry
+          priceHistory = [...priceHistory, { price: newPrice, date: today }];
+        }
+      }
+
+      return { ...updatedCar, priceHistory };
+    }));
     setEditCar(null);
   };
 

@@ -2,6 +2,15 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.5.0] - 2024-12-30
+
+### Added
+- Price History Tracking to monitor price changes over time
+- Visual sparkline chart showing price trends in expanded card view
+- Price drop/rise indicators on car cards (green down arrow for drops, red up for increases)
+- Automatic price history recording when editing listings
+- Total price change summary with percentage
+
 ## [0.4.0] - 2024-12-30
 
 ### Added

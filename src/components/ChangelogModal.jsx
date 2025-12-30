@@ -1,8 +1,18 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.5.0',
+    date: '2024-12-30',
+    changes: [
+      'Added Price History Tracking to monitor price changes over time',
+      'Visual sparkline chart showing price trends in expanded view',
+      'Price drop/rise indicators on car cards',
+      'Automatic price history recording when editing listings',
+    ],
+  },
   {
     version: '0.4.0',
     date: '2024-12-30',
@@ -78,6 +88,7 @@ export const ROADMAP = [
     category: 'Completed',
     icon: '✅',
     items: [
+      { title: 'Price History Tracking', description: 'Track price changes over time with sparkline visualization', priority: 'high' },
       { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'high' },
       { title: 'Listing URL Links', description: 'Save the dealer listing URL with each vehicle for quick access', priority: 'high' },
       { title: 'Import/Export Data', description: 'Export your listings to JSON and import them on another device', priority: 'high' },
@@ -87,7 +98,6 @@ export const ROADMAP = [
     category: 'Planned',
     icon: '📋',
     items: [
-      { title: 'Price History Tracking', description: 'Track price changes over time for each listing', priority: 'medium' },
       { title: 'Custom Criteria', description: 'Add your own scoring criteria beyond the default 10', priority: 'low' },
       { title: 'Photo Attachments', description: 'Attach photos to each listing for reference', priority: 'low' },
     ],
