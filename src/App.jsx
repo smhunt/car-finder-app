@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, Info, X, RotateCcw, Database, Loader2, Edit2, MessageSquare } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare } from 'lucide-react';
+import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
 
 // ============ STORAGE CONFIGURATION ============
 const STORAGE_CONFIG = {
@@ -631,36 +632,6 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
   );
 };
 
-const InfoModal = ({ onClose }) => (
-  <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-    <div className="bg-white rounded-2xl w-full max-w-lg shadow-tally-xl" onClick={e => e.stopPropagation()}>
-      <div className="border-b border-slate-100 p-4 flex items-center justify-between">
-        <h2 className="font-display font-semibold text-charcoal flex items-center gap-2">
-          <Info size={20} /> About Value Scoring
-        </h2>
-        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400">
-          <X size={20} />
-        </button>
-      </div>
-      <div className="p-6">
-        <h3 className="font-display font-semibold text-tally-blue mb-2">Multi-Criteria Decision Analysis (MCDA)</h3>
-        <p className="text-slate-600 text-sm mb-4">This tool uses weighted normalization to calculate an overall "Value Score" for each car. The algorithm normalizes each attribute to a 0-1 scale, applies your weights, and sums them for a final score from 0-100.</p>
-        <h3 className="font-display font-semibold text-tally-blue mb-2">How Attributes Are Scored</h3>
-        <ul className="text-slate-600 text-sm space-y-1 mb-4">
-          <li><strong>Price, Odometer, Distance, Length, Damage:</strong> Lower is better</li>
-          <li><strong>Range, Year, Trim Level:</strong> Higher is better</li>
-          <li><strong>Heat Pump:</strong> Yes = 1, No = 0</li>
-          <li><strong>Remote Start:</strong> Fob+App = 1, Other = 0</li>
-        </ul>
-        <p className="text-slate-600 text-sm">Your listings and weights are automatically saved to local storage!</p>
-      </div>
-      <div className="p-4 border-t border-slate-100">
-        <button onClick={onClose} className="tally-btn tally-btn-primary w-full">Got it!</button>
-      </div>
-    </div>
-  </div>
-);
-
 // ============ MAIN APP ============
 export default function App() {
   const [cars, setCars] = useState([]);
@@ -668,7 +639,8 @@ export default function App() {
   const [expandedCard, setExpandedCard] = useState(null);
   const [showWeights, setShowWeights] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showChangelogModal, setShowChangelogModal] = useState(false);
+  const [changelogTab, setChangelogTab] = useState('changelog');
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('saved');
   const [editCar, setEditCar] = useState(null);
@@ -781,8 +753,11 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={() => setShowInfoModal(true)} className="tally-btn tally-btn-ghost">
-                <Info size={18} /> How it Works
+              <button
+                onClick={() => setShowChangelogModal(true)}
+                className="px-3 py-1.5 text-xs font-semibold rounded-full bg-tally-blue/10 text-tally-blue hover:bg-tally-blue/20 transition-all"
+              >
+                v{APP_VERSION}
               </button>
               <button onClick={resetToSampleData} className="tally-btn tally-btn-ghost">
                 <RotateCcw size={18} />
@@ -867,7 +842,12 @@ export default function App() {
           editCar={editCar}
         />
       )}
-      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
+      <ChangelogModal
+        isOpen={showChangelogModal}
+        onClose={() => setShowChangelogModal(false)}
+        activeTab={changelogTab}
+        onTabChange={setChangelogTab}
+      />
     </div>
   );
 }
