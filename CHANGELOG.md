@@ -2,6 +2,14 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.3.0] - 2024-12-30
+
+### Added
+- Listing URL field to save dealer listing links with each vehicle
+- URL input field in Add/Edit form (step 2 - Vehicle Details)
+- Link icon indicator on car cards that have a URL saved
+- "View Listing" button in expanded card view opens URL in new tab
+
 ## [0.2.0] - 2024-12-30
 
 ### Added

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link } from 'lucide-react';
 import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
 
 // ============ STORAGE CONFIGURATION ============
@@ -96,12 +96,12 @@ const COLOR_PRESETS = ['White', 'Black', 'Grey', 'Silver', 'Blue', 'Red', 'Green
 const REMOTE_START_OPTIONS = ['Fob, App', 'App', 'Fob', 'None'];
 
 const SAMPLE_CARS = [
-  { id: 1, make: 'Chevrolet', model: 'Bolt EUV', year: 2023, trim: 'LT', trimLevel: 2, dealer: 'Park Lane Cadillac', price: 22995, odo: 62000, color: 'Grey', range: 397, length: 169, heatPump: false, remoteStart: 'Fob, App', location: 'Sarnia', distance: 4, damage: 0, notes: '', starred: false },
-  { id: 2, make: 'Kia', model: 'Niro EV', year: 2020, trim: 'SX Touring', trimLevel: 3, dealer: 'Titanium Auto Sales', price: 23990, odo: 75000, color: 'Gravity Blue', range: 385, length: 171, heatPump: true, remoteStart: 'App', location: 'Springbank', distance: 1, damage: 0, notes: '', starred: false },
-  { id: 3, make: 'Hyundai', model: 'Kona Electric', year: 2021, trim: 'Preferred', trimLevel: 2, dealer: 'Stricklands', price: 24650, odo: 37000, color: 'White', range: 415, length: 164, heatPump: true, remoteStart: 'Fob, App', location: 'Stratford', distance: 3, damage: 0, notes: '', starred: false },
-  { id: 4, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'MacMaster GM', price: 25495, odo: 91000, color: 'White', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Airport', distance: 1, damage: 0, notes: '', starred: false },
-  { id: 5, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'Audi London', price: 25495, odo: 46450, color: 'Grey', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Wharncliffe South', distance: 1, damage: 0, notes: '', starred: false },
-  { id: 6, make: 'Nissan', model: 'Leaf', year: 2023, trim: 'SL Plus', trimLevel: 3, dealer: 'Stricklands Toyota', price: 26888, odo: 8743, color: 'White', range: 342, length: 176, heatPump: true, remoteStart: 'App', location: 'Stratford', distance: 3, damage: 0, notes: '', starred: false },
+  { id: 1, make: 'Chevrolet', model: 'Bolt EUV', year: 2023, trim: 'LT', trimLevel: 2, dealer: 'Park Lane Cadillac', price: 22995, odo: 62000, color: 'Grey', range: 397, length: 169, heatPump: false, remoteStart: 'Fob, App', location: 'Sarnia', distance: 4, damage: 0, notes: '', url: '', starred: false },
+  { id: 2, make: 'Kia', model: 'Niro EV', year: 2020, trim: 'SX Touring', trimLevel: 3, dealer: 'Titanium Auto Sales', price: 23990, odo: 75000, color: 'Gravity Blue', range: 385, length: 171, heatPump: true, remoteStart: 'App', location: 'Springbank', distance: 1, damage: 0, notes: '', url: '', starred: false },
+  { id: 3, make: 'Hyundai', model: 'Kona Electric', year: 2021, trim: 'Preferred', trimLevel: 2, dealer: 'Stricklands', price: 24650, odo: 37000, color: 'White', range: 415, length: 164, heatPump: true, remoteStart: 'Fob, App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false },
+  { id: 4, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'MacMaster GM', price: 25495, odo: 91000, color: 'White', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Airport', distance: 1, damage: 0, notes: '', url: '', starred: false },
+  { id: 5, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'Audi London', price: 25495, odo: 46450, color: 'Grey', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Wharncliffe South', distance: 1, damage: 0, notes: '', url: '', starred: false },
+  { id: 6, make: 'Nissan', model: 'Leaf', year: 2023, trim: 'SL Plus', trimLevel: 3, dealer: 'Stricklands Toyota', price: 26888, odo: 8743, color: 'White', range: 342, length: 176, heatPump: true, remoteStart: 'App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false },
 ];
 
 const DEFAULT_WEIGHTS = {
@@ -292,6 +292,7 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-display font-semibold text-charcoal">{car.year} {car.make} {car.model}</h3>
             <span className="tally-badge-blue text-xs">{car.trim}</span>
+            {car.url && <ExternalLink size={14} className="text-tally-blue" />}
             {car.notes && <MessageSquare size={14} className="text-slate-400" />}
           </div>
           <div className="flex gap-4 mt-1 flex-wrap">
@@ -385,7 +386,18 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
             </div>
           </div>
 
-          <div className="flex gap-3 mt-4 pt-4 border-t border-slate-100">
+          <div className="flex gap-3 mt-4 pt-4 border-t border-slate-100 flex-wrap">
+            {car.url && (
+              <a
+                href={car.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-tally-blue rounded-xl hover:bg-tally-blue-dark transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink size={16} /> View Listing
+              </a>
+            )}
             <button
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-tally-blue border border-tally-blue rounded-xl hover:bg-tally-blue hover:text-white transition-all"
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
@@ -412,7 +424,7 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
     make: '', model: '', year: 2024, trim: '', trimLevel: 2,
     dealer: '', price: '', odo: '', color: 'White',
     range: '', length: '', heatPump: true, remoteStart: 'Fob, App',
-    location: '', distance: 1, damage: 0, notes: '', starred: false
+    location: '', distance: 1, damage: 0, notes: '', url: '', starred: false
   });
   const [step, setStep] = useState(isEditing ? 2 : 1);
   const [manualNav, setManualNav] = useState(false);
@@ -465,7 +477,7 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
       price: parseInt(formData.price) || 25000, odo: parseInt(formData.odo) || 50000,
       range: parseInt(formData.range) || 400, length: parseInt(formData.length) || 170,
       distance: parseInt(formData.distance) || 1, damage: parseInt(formData.damage) || 0,
-      notes: formData.notes || '', starred: formData.starred || false,
+      notes: formData.notes || '', url: formData.url || '', starred: formData.starred || false,
     };
     isEditing ? onUpdate(sanitizedData) : onAdd(sanitizedData);
     onClose();
@@ -527,6 +539,18 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
                 <label className="block text-sm font-medium text-slate-600 mb-1">Dealer</label>
                 <input type="text" value={formData.dealer} onChange={(e) => setFormData({ ...formData, dealer: e.target.value })} className="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all" list="dealers" placeholder="City Motors" />
                 <datalist id="dealers">{existingDealers.map(d => <option key={d} value={d} />)}</datalist>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-slate-600 mb-1 flex items-center gap-1">
+                  <Link size={14} /> Listing URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.url || ''}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all"
+                  placeholder="https://dealer.com/listing/12345"
+                />
               </div>
               <QuickSelect label="Color" options={COLOR_PRESETS} value={formData.color} onChange={(v) => setFormData({ ...formData, color: v })} columns={3} />
               <div className="grid grid-cols-2 gap-4 mb-4">

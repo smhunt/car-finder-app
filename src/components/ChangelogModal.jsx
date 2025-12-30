@@ -1,8 +1,18 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.2.0';
+export const APP_VERSION = '0.3.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.3.0',
+    date: '2024-12-30',
+    changes: [
+      'Added Listing URL field to save dealer listing links',
+      'URL input added to Add/Edit form (step 2)',
+      'Link icon shown on car cards that have a URL',
+      '"View Listing" button opens URL in new tab when expanded',
+    ],
+  },
   {
     version: '0.2.0',
     date: '2024-12-30',
@@ -58,6 +68,7 @@ export const ROADMAP = [
     category: 'Completed',
     icon: '✅',
     items: [
+      { title: 'Listing URL Links', description: 'Save the dealer listing URL with each vehicle for quick access', priority: 'high' },
       { title: 'Import/Export Data', description: 'Export your listings to JSON and import them on another device', priority: 'high' },
     ],
   },
@@ -65,7 +76,6 @@ export const ROADMAP = [
     category: 'Planned',
     icon: '📋',
     items: [
-      { title: 'Listing URL Links', description: 'Save the dealer listing URL with each vehicle for quick access', priority: 'high' },
       { title: 'Price History Tracking', description: 'Track price changes over time for each listing', priority: 'medium' },
       { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'medium' },
       { title: 'Custom Criteria', description: 'Add your own scoring criteria beyond the default 10', priority: 'low' },
