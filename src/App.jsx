@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare } from 'lucide-react';
 import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
 
 // ============ STORAGE CONFIGURATION ============
@@ -269,20 +269,29 @@ const WeightSlider = ({ config, value, onChange, totalWeight }) => {
   );
 };
 
-const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onEdit, breakdown }) => {
+const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onEdit, breakdown, isSelected, onSelect, compareMode }) => {
   const getScoreColor = (s) => s >= 70 ? 'text-tally-mint' : s >= 50 ? 'text-amber-500' : 'text-tally-coral';
   const getRankBg = (r) => r === 1 ? 'bg-gradient-to-br from-amber-400 to-amber-500' : r === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : r === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-slate-500';
   const config = WEIGHT_CONFIG.reduce((acc, c) => ({ ...acc, [c.key]: c }), {});
 
   return (
-    <div className={`tally-card mb-4 ${isExpanded ? 'ring-2 ring-tally-blue' : ''} ${car.starred ? 'ring-2 ring-amber-400' : ''}`}>
+    <div className={`tally-card mb-4 ${isExpanded ? 'ring-2 ring-tally-blue' : ''} ${car.starred ? 'ring-2 ring-amber-400' : ''} ${isSelected ? 'ring-2 ring-tally-mint' : ''}`}>
       <div className="flex items-center gap-4 cursor-pointer" onClick={onToggle}>
-        <button
-          className={`p-1 rounded-lg transition-all ${car.starred ? 'text-amber-400' : 'text-slate-300 hover:text-amber-400'}`}
-          onClick={(e) => { e.stopPropagation(); onStar(); }}
-        >
-          <Star size={18} fill={car.starred ? 'currentColor' : 'none'} />
-        </button>
+        {compareMode ? (
+          <button
+            className={`p-1 rounded-lg transition-all ${isSelected ? 'text-tally-mint' : 'text-slate-300 hover:text-tally-mint'}`}
+            onClick={(e) => { e.stopPropagation(); onSelect(); }}
+          >
+            {isSelected ? <CheckSquare size={20} /> : <Square size={20} />}
+          </button>
+        ) : (
+          <button
+            className={`p-1 rounded-lg transition-all ${car.starred ? 'text-amber-400' : 'text-slate-300 hover:text-amber-400'}`}
+            onClick={(e) => { e.stopPropagation(); onStar(); }}
+          >
+            <Star size={18} fill={car.starred ? 'currentColor' : 'none'} />
+          </button>
+        )}
 
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm ${getRankBg(rank)}`}>
           #{rank}
@@ -656,6 +665,156 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
   );
 };
 
+// Comparison Modal Component
+const ComparisonModal = ({ cars, onClose, weights }) => {
+  const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
+
+  const getScoreColor = (s) => s >= 70 ? 'text-tally-mint' : s >= 50 ? 'text-amber-500' : 'text-tally-coral';
+  const getBestValue = (values, lowerIsBetter = false) => {
+    if (lowerIsBetter) return Math.min(...values.filter(v => v !== undefined && v !== null));
+    return Math.max(...values.filter(v => v !== undefined && v !== null));
+  };
+
+  const attributes = [
+    { key: 'price', label: 'Price', format: (v) => `$${v?.toLocaleString()}`, lowerIsBetter: true, icon: DollarSign },
+    { key: 'odo', label: 'Odometer', format: (v) => `${v?.toLocaleString()} km`, lowerIsBetter: true, icon: Gauge },
+    { key: 'range', label: 'Range', format: (v) => `${v} km`, lowerIsBetter: false, icon: Zap },
+    { key: 'year', label: 'Year', format: (v) => v, lowerIsBetter: false, icon: Calendar },
+    { key: 'trimLevel', label: 'Trim Level', format: (v) => ['Base', 'Mid', 'Top'][v - 1] || v, lowerIsBetter: false, icon: Star },
+    { key: 'distance', label: 'Distance', format: (v) => v === 1 ? 'Local' : `~${v * 15} min`, lowerIsBetter: true, icon: MapPin },
+    { key: 'length', label: 'Length', format: (v) => `${v}"`, lowerIsBetter: true, icon: Ruler },
+    { key: 'heatPump', label: 'Heat Pump', format: (v) => v ? 'Yes' : 'No', lowerIsBetter: false, icon: Thermometer },
+    { key: 'remoteStart', label: 'Remote Start', format: (v) => v, lowerIsBetter: false, icon: Smartphone },
+    { key: 'damage', label: 'Damage', format: (v) => v > 0 ? `$${v.toLocaleString()}` : 'None', lowerIsBetter: true, icon: AlertTriangle },
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-tally-xl" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-slate-100 p-4 flex items-center justify-between z-10">
+          <h2 className="font-display font-semibold text-charcoal flex items-center gap-2">
+            <GitCompare size={20} /> Compare {cars.length} Vehicles
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-4">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left p-3 bg-fog rounded-tl-xl font-medium text-slate-500 text-sm min-w-[140px]">Attribute</th>
+                  {cars.map(car => (
+                    <th key={car.id} className="p-3 bg-fog text-center min-w-[160px]">
+                      <div className="font-display font-semibold text-charcoal">{car.year} {car.make}</div>
+                      <div className="text-sm text-slate-500">{car.model} {car.trim}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Score Row */}
+                <tr className="border-b border-slate-100">
+                  <td className="p-3 font-medium text-slate-600 flex items-center gap-2">
+                    <TrendingUp size={16} className="text-tally-blue" /> Value Score
+                  </td>
+                  {cars.map(car => {
+                    const best = getBestValue(cars.map(c => c.score), false);
+                    const isBest = car.score === best;
+                    return (
+                      <td key={car.id} className="p-3 text-center">
+                        <span className={`font-mono font-bold text-lg ${getScoreColor(car.score)} ${isBest ? 'bg-tally-mint/10 px-3 py-1 rounded-lg' : ''}`}>
+                          {car.score.toFixed(1)}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+
+                {/* Attribute Rows */}
+                {attributes.map(attr => {
+                  const values = cars.map(c => c[attr.key]);
+                  const best = getBestValue(values, attr.lowerIsBetter);
+                  const Icon = attr.icon;
+
+                  return (
+                    <tr key={attr.key} className="border-b border-slate-50 hover:bg-fog/50">
+                      <td className="p-3 font-medium text-slate-600 flex items-center gap-2">
+                        <Icon size={16} className="text-slate-400" /> {attr.label}
+                      </td>
+                      {cars.map(car => {
+                        const value = car[attr.key];
+                        const isBest = (attr.key === 'heatPump' && value === true) ||
+                                       (attr.key === 'remoteStart' && value === 'Fob, App') ||
+                                       (attr.key !== 'heatPump' && attr.key !== 'remoteStart' && value === best);
+                        return (
+                          <td key={car.id} className="p-3 text-center">
+                            <span className={`${isBest ? 'text-tally-mint font-semibold' : 'text-slate-600'}`}>
+                              {attr.format(value)}
+                            </span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+
+                {/* Dealer Row */}
+                <tr className="border-b border-slate-50 hover:bg-fog/50">
+                  <td className="p-3 font-medium text-slate-600">Dealer</td>
+                  {cars.map(car => (
+                    <td key={car.id} className="p-3 text-center text-sm text-slate-600">{car.dealer || '-'}</td>
+                  ))}
+                </tr>
+
+                {/* Location Row */}
+                <tr className="border-b border-slate-50 hover:bg-fog/50">
+                  <td className="p-3 font-medium text-slate-600">Location</td>
+                  {cars.map(car => (
+                    <td key={car.id} className="p-3 text-center text-sm text-slate-600">{car.location || '-'}</td>
+                  ))}
+                </tr>
+
+                {/* URL Row */}
+                <tr className="hover:bg-fog/50">
+                  <td className="p-3 font-medium text-slate-600">Listing</td>
+                  {cars.map(car => (
+                    <td key={car.id} className="p-3 text-center">
+                      {car.url ? (
+                        <a
+                          href={car.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm text-tally-blue hover:underline"
+                        >
+                          <ExternalLink size={14} /> View
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 text-sm">-</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-slate-100 p-4 flex justify-end">
+          <button onClick={onClose} className="tally-btn tally-btn-primary">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ============ MAIN APP ============
 export default function App() {
   const [cars, setCars] = useState([]);
@@ -665,6 +824,9 @@ export default function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showChangelogModal, setShowChangelogModal] = useState(false);
   const [changelogTab, setChangelogTab] = useState('changelog');
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedForCompare, setSelectedForCompare] = useState([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('saved');
   const [editCar, setEditCar] = useState(null);
@@ -736,6 +898,33 @@ export default function App() {
     setEditCar(car);
     setShowAddModal(true);
   };
+
+  const handleSelectForCompare = (carId) => {
+    setSelectedForCompare(prev => {
+      if (prev.includes(carId)) {
+        return prev.filter(id => id !== carId);
+      }
+      if (prev.length >= 3) {
+        return [...prev.slice(1), carId]; // Remove oldest, add new
+      }
+      return [...prev, carId];
+    });
+  };
+
+  const handleOpenCompare = () => {
+    if (selectedForCompare.length >= 2) {
+      setShowCompareModal(true);
+    }
+  };
+
+  const handleExitCompareMode = () => {
+    setCompareMode(false);
+    setSelectedForCompare([]);
+  };
+
+  const carsToCompare = useMemo(() => {
+    return scoredCars.filter(car => selectedForCompare.includes(car.id));
+  }, [scoredCars, selectedForCompare]);
 
   const resetToSampleData = async () => {
     if (confirm('Reset to sample data? This will replace your current listings.')) {
@@ -835,12 +1024,32 @@ export default function App() {
               <button onClick={resetToSampleData} className="tally-btn tally-btn-ghost">
                 <RotateCcw size={18} />
               </button>
-              <button onClick={() => setShowWeights(!showWeights)} className={`tally-btn ${showWeights ? 'tally-btn-primary' : 'tally-btn-secondary'}`}>
-                <Settings size={18} /> Weights
-              </button>
-              <button onClick={() => { setEditCar(null); setShowAddModal(true); }} className="tally-btn tally-btn-primary">
-                <Plus size={18} /> Add Listing
-              </button>
+              {compareMode ? (
+                <>
+                  <button onClick={handleExitCompareMode} className="tally-btn tally-btn-ghost">
+                    <X size={18} /> Cancel
+                  </button>
+                  <button
+                    onClick={handleOpenCompare}
+                    disabled={selectedForCompare.length < 2}
+                    className={`tally-btn ${selectedForCompare.length >= 2 ? 'tally-btn-primary' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                  >
+                    <GitCompare size={18} /> Compare ({selectedForCompare.length}/3)
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => setCompareMode(true)} className="tally-btn tally-btn-secondary">
+                    <GitCompare size={18} /> Compare
+                  </button>
+                  <button onClick={() => setShowWeights(!showWeights)} className={`tally-btn ${showWeights ? 'tally-btn-primary' : 'tally-btn-secondary'}`}>
+                    <Settings size={18} /> Weights
+                  </button>
+                  <button onClick={() => { setEditCar(null); setShowAddModal(true); }} className="tally-btn tally-btn-primary">
+                    <Plus size={18} /> Add Listing
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
