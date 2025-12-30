@@ -1,8 +1,19 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.6.0',
+    date: '2024-12-30',
+    changes: [
+      'Added Photo Attachments to save images with each listing',
+      'Photo gallery with thumbnail grid in expanded card view',
+      'Full-screen lightbox with keyboard navigation (arrows, Esc)',
+      'Photo upload in step 3 of Add/Edit form',
+      'Images auto-resized to 800px for efficient storage',
+    ],
+  },
   {
     version: '0.5.0',
     date: '2024-12-30',
@@ -88,6 +99,7 @@ export const ROADMAP = [
     category: 'Completed',
     icon: '✅',
     items: [
+      { title: 'Photo Attachments', description: 'Attach photos to each listing with gallery view and lightbox', priority: 'high' },
       { title: 'Price History Tracking', description: 'Track price changes over time with sparkline visualization', priority: 'high' },
       { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'high' },
       { title: 'Listing URL Links', description: 'Save the dealer listing URL with each vehicle for quick access', priority: 'high' },
@@ -99,7 +111,6 @@ export const ROADMAP = [
     icon: '📋',
     items: [
       { title: 'Custom Criteria', description: 'Add your own scoring criteria beyond the default 10', priority: 'low' },
-      { title: 'Photo Attachments', description: 'Attach photos to each listing for reference', priority: 'low' },
     ],
   },
   {

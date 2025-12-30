@@ -2,6 +2,16 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.6.0] - 2024-12-30
+
+### Added
+- Photo Attachments to save images with each listing
+- Photo gallery with thumbnail grid in expanded card view
+- Full-screen lightbox viewer with keyboard navigation (left/right arrows, Escape)
+- Photo upload in step 3 of Add/Edit form with multi-file support
+- Auto-resize images to 800px max dimension for efficient localStorage usage
+- Camera icon indicator on car cards that have photos
+
 ## [0.5.0] - 2024-12-30
 
 ### Added

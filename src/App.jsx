@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, TrendingDown, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare, History } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, TrendingDown, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare, History, Image, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
 
 // ============ STORAGE CONFIGURATION ============
@@ -96,12 +96,12 @@ const COLOR_PRESETS = ['White', 'Black', 'Grey', 'Silver', 'Blue', 'Red', 'Green
 const REMOTE_START_OPTIONS = ['Fob, App', 'App', 'Fob', 'None'];
 
 const SAMPLE_CARS = [
-  { id: 1, make: 'Chevrolet', model: 'Bolt EUV', year: 2023, trim: 'LT', trimLevel: 2, dealer: 'Park Lane Cadillac', price: 22995, odo: 62000, color: 'Grey', range: 397, length: 169, heatPump: false, remoteStart: 'Fob, App', location: 'Sarnia', distance: 4, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 24995, date: '2024-12-15' }, { price: 23995, date: '2024-12-22' }, { price: 22995, date: '2024-12-28' }] },
-  { id: 2, make: 'Kia', model: 'Niro EV', year: 2020, trim: 'SX Touring', trimLevel: 3, dealer: 'Titanium Auto Sales', price: 23990, odo: 75000, color: 'Gravity Blue', range: 385, length: 171, heatPump: true, remoteStart: 'App', location: 'Springbank', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 23990, date: '2024-12-20' }] },
-  { id: 3, make: 'Hyundai', model: 'Kona Electric', year: 2021, trim: 'Preferred', trimLevel: 2, dealer: 'Stricklands', price: 24650, odo: 37000, color: 'White', range: 415, length: 164, heatPump: true, remoteStart: 'Fob, App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 25500, date: '2024-12-10' }, { price: 24650, date: '2024-12-25' }] },
-  { id: 4, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'MacMaster GM', price: 25495, odo: 91000, color: 'White', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Airport', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 25495, date: '2024-12-18' }] },
-  { id: 5, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'Audi London', price: 25495, odo: 46450, color: 'Grey', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Wharncliffe South', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 26995, date: '2024-12-05' }, { price: 25995, date: '2024-12-15' }, { price: 25495, date: '2024-12-28' }] },
-  { id: 6, make: 'Nissan', model: 'Leaf', year: 2023, trim: 'SL Plus', trimLevel: 3, dealer: 'Stricklands Toyota', price: 26888, odo: 8743, color: 'White', range: 342, length: 176, heatPump: true, remoteStart: 'App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 27888, date: '2024-12-12' }, { price: 26888, date: '2024-12-26' }] },
+  { id: 1, make: 'Chevrolet', model: 'Bolt EUV', year: 2023, trim: 'LT', trimLevel: 2, dealer: 'Park Lane Cadillac', price: 22995, odo: 62000, color: 'Grey', range: 397, length: 169, heatPump: false, remoteStart: 'Fob, App', location: 'Sarnia', distance: 4, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 24995, date: '2024-12-15' }, { price: 23995, date: '2024-12-22' }, { price: 22995, date: '2024-12-28' }], photos: [] },
+  { id: 2, make: 'Kia', model: 'Niro EV', year: 2020, trim: 'SX Touring', trimLevel: 3, dealer: 'Titanium Auto Sales', price: 23990, odo: 75000, color: 'Gravity Blue', range: 385, length: 171, heatPump: true, remoteStart: 'App', location: 'Springbank', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 23990, date: '2024-12-20' }], photos: [] },
+  { id: 3, make: 'Hyundai', model: 'Kona Electric', year: 2021, trim: 'Preferred', trimLevel: 2, dealer: 'Stricklands', price: 24650, odo: 37000, color: 'White', range: 415, length: 164, heatPump: true, remoteStart: 'Fob, App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 25500, date: '2024-12-10' }, { price: 24650, date: '2024-12-25' }], photos: [] },
+  { id: 4, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'MacMaster GM', price: 25495, odo: 91000, color: 'White', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Airport', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 25495, date: '2024-12-18' }], photos: [] },
+  { id: 5, make: 'Chevrolet', model: 'Bolt EV', year: 2022, trim: '1LT', trimLevel: 2, dealer: 'Audi London', price: 25495, odo: 46450, color: 'Grey', range: 417, length: 163, heatPump: false, remoteStart: 'Fob, App', location: 'Wharncliffe South', distance: 1, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 26995, date: '2024-12-05' }, { price: 25995, date: '2024-12-15' }, { price: 25495, date: '2024-12-28' }], photos: [] },
+  { id: 6, make: 'Nissan', model: 'Leaf', year: 2023, trim: 'SL Plus', trimLevel: 3, dealer: 'Stricklands Toyota', price: 26888, odo: 8743, color: 'White', range: 342, length: 176, heatPump: true, remoteStart: 'App', location: 'Stratford', distance: 3, damage: 0, notes: '', url: '', starred: false, priceHistory: [{ price: 27888, date: '2024-12-12' }, { price: 26888, date: '2024-12-26' }], photos: [] },
 ];
 
 const DEFAULT_WEIGHTS = {
@@ -375,6 +375,197 @@ const PriceHistory = ({ history, currentPrice }) => {
   );
 };
 
+// Photo Lightbox Component for full-size viewing
+const PhotoLightbox = ({ photos, currentIndex, onClose, onPrev, onNext }) => {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') onPrev();
+      if (e.key === 'ArrowRight') onNext();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, onPrev, onNext]);
+
+  return (
+    <div className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center" onClick={onClose}>
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
+      >
+        <X size={28} />
+      </button>
+
+      {photos.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); onPrev(); }}
+            className="absolute left-4 p-3 text-white/70 hover:text-white bg-black/30 rounded-full transition-colors"
+          >
+            <ChevronLeft size={32} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onNext(); }}
+            className="absolute right-4 p-3 text-white/70 hover:text-white bg-black/30 rounded-full transition-colors"
+          >
+            <ChevronRight size={32} />
+          </button>
+        </>
+      )}
+
+      <div className="max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+        <img
+          src={photos[currentIndex]}
+          alt={`Photo ${currentIndex + 1}`}
+          className="max-w-full max-h-[85vh] object-contain rounded-lg"
+        />
+        <div className="text-center text-white/70 text-sm mt-2">
+          {currentIndex + 1} / {photos.length}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Photo Gallery Component for displaying thumbnails
+const PhotoGallery = ({ photos, onAddPhoto, onRemovePhoto, editable = false }) => {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const fileInputRef = useRef(null);
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          // Resize image to reduce storage size
+          const img = document.createElement('img');
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxSize = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height && width > maxSize) {
+              height = (height * maxSize) / width;
+              width = maxSize;
+            } else if (height > maxSize) {
+              width = (width * maxSize) / height;
+              height = maxSize;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            onAddPhoto(resizedDataUrl);
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    e.target.value = '';
+  };
+
+  if (!photos || photos.length === 0) {
+    if (!editable) return null;
+    return (
+      <div className="bg-fog rounded-xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Camera size={14} className="text-slate-400" />
+            <span className="text-xs font-medium text-slate-500">Photos</span>
+          </div>
+        </div>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full py-6 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:border-tally-blue hover:text-tally-blue transition-colors flex flex-col items-center gap-2"
+        >
+          <Image size={24} />
+          <span className="text-sm">Add photos</span>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-fog rounded-xl p-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Camera size={14} className="text-slate-400" />
+          <span className="text-xs font-medium text-slate-500">Photos ({photos.length})</span>
+        </div>
+        {editable && (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="text-xs text-tally-blue hover:underline"
+          >
+            + Add more
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        {photos.map((photo, index) => (
+          <div key={index} className="relative group aspect-square">
+            <img
+              src={photo}
+              alt={`Photo ${index + 1}`}
+              className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => openLightbox(index)}
+            />
+            {editable && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemovePhoto(index); }}
+                className="absolute -top-1 -right-1 w-5 h-5 bg-tally-coral text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {editable && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      )}
+
+      {lightboxOpen && (
+        <PhotoLightbox
+          photos={photos}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+          onPrev={() => setLightboxIndex(prev => (prev > 0 ? prev - 1 : photos.length - 1))}
+          onNext={() => setLightboxIndex(prev => (prev < photos.length - 1 ? prev + 1 : 0))}
+        />
+      )}
+    </div>
+  );
+};
+
 const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onEdit, breakdown, isSelected, onSelect, compareMode }) => {
   const getScoreColor = (s) => s >= 70 ? 'text-tally-mint' : s >= 50 ? 'text-amber-500' : 'text-tally-coral';
   const getRankBg = (r) => r === 1 ? 'bg-gradient-to-br from-amber-400 to-amber-500' : r === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : r === 3 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-slate-500';
@@ -415,6 +606,7 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
             <h3 className="font-display font-semibold text-charcoal">{car.year} {car.make} {car.model}</h3>
             <span className="tally-badge-blue text-xs">{car.trim}</span>
             {car.url && <ExternalLink size={14} className="text-tally-blue" />}
+            {car.photos && car.photos.length > 0 && <Camera size={14} className="text-tally-pink" />}
             {car.notes && <MessageSquare size={14} className="text-slate-400" />}
           </div>
           <div className="flex gap-4 mt-1 flex-wrap">
@@ -493,6 +685,9 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
 
               {/* Price History Section */}
               <PriceHistory history={car.priceHistory} currentPrice={car.price} />
+
+              {/* Photos Section */}
+              <PhotoGallery photos={car.photos} editable={false} />
             </div>
 
             <div>
@@ -556,7 +751,8 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
     make: '', model: '', year: 2024, trim: '', trimLevel: 2,
     dealer: '', price: '', odo: '', color: 'White',
     range: '', length: '', heatPump: true, remoteStart: 'Fob, App',
-    location: '', distance: 1, damage: 0, notes: '', url: '', starred: false
+    location: '', distance: 1, damage: 0, notes: '', url: '', starred: false,
+    photos: []
   });
   const [step, setStep] = useState(isEditing ? 2 : 1);
   const [manualNav, setManualNav] = useState(false);
@@ -601,6 +797,14 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
     setFormData(prev => ({ ...prev, location: loc, distance: preset?.distance || prev.distance }));
   };
 
+  const handleAddPhoto = (photoDataUrl) => {
+    setFormData(prev => ({ ...prev, photos: [...(prev.photos || []), photoDataUrl] }));
+  };
+
+  const handleRemovePhoto = (index) => {
+    setFormData(prev => ({ ...prev, photos: (prev.photos || []).filter((_, i) => i !== index) }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const newPrice = parseInt(formData.price) || 25000;
@@ -621,6 +825,7 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
       distance: parseInt(formData.distance) || 1, damage: parseInt(formData.damage) || 0,
       notes: formData.notes || '', url: formData.url || '', starred: formData.starred || false,
       priceHistory,
+      photos: formData.photos || [],
     };
     isEditing ? onUpdate(sanitizedData) : onAdd(sanitizedData);
     onClose();
@@ -761,6 +966,17 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
                   placeholder="Any notes about this vehicle..."
                 />
               </div>
+
+              {/* Photo Upload Section */}
+              <div className="mb-4">
+                <PhotoGallery
+                  photos={formData.photos || []}
+                  onAddPhoto={handleAddPhoto}
+                  onRemovePhoto={handleRemovePhoto}
+                  editable={true}
+                />
+              </div>
+
               <div className="bg-fog rounded-xl p-4">
                 <h4 className="text-xs text-slate-400 mb-2">Summary</h4>
                 <div className="font-display font-semibold text-tally-blue">{formData.year} {formData.make} {formData.model} {formData.trim}</div>
