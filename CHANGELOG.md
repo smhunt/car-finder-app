@@ -2,6 +2,14 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.2.0] - 2024-12-30
+
+### Added
+- Import/Export functionality for backing up and restoring listings
+- Export saves listings and weights to a JSON file with timestamp
+- Import loads data from a previously exported JSON file with validation
+- Data section added to Weights panel for easy access to import/export
+
 ## [0.1.0] - 2024-12-30
 
 ### Added

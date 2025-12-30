@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload } from 'lucide-react';
 import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
 
 // ============ STORAGE CONFIGURATION ============
@@ -720,6 +720,55 @@ export default function App() {
     }
   };
 
+  // Export data as JSON file
+  const handleExport = () => {
+    const exportData = {
+      version: APP_VERSION,
+      exportedAt: new Date().toISOString(),
+      cars,
+      weights,
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ev-scorer-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Import data from JSON file
+  const handleImport = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result);
+        if (data.cars && Array.isArray(data.cars)) {
+          const confirmMsg = `Import ${data.cars.length} listings${data.weights ? ' and weights' : ''}? This will replace your current data.`;
+          if (confirm(confirmMsg)) {
+            setCars(data.cars);
+            if (data.weights) setWeights(data.weights);
+          }
+        } else {
+          alert('Invalid file format. Expected a JSON file with cars array.');
+        }
+      } catch (err) {
+        alert('Failed to parse file. Please ensure it is a valid JSON file.');
+      }
+    };
+    reader.readAsText(file);
+    // Reset the input so the same file can be selected again
+    event.target.value = '';
+  };
+
+  // Ref for hidden file input
+  const fileInputRef = useRef(null);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-fog tally-bg-mesh flex items-center justify-center">
@@ -796,6 +845,20 @@ export default function App() {
               <button onClick={() => setWeights(DEFAULT_WEIGHTS)} className="tally-btn tally-btn-ghost w-full mt-4">
                 <RotateCcw size={16} /> Reset Weights
               </button>
+
+              {/* Import/Export Section */}
+              <div className="mt-6 pt-4 border-t border-slate-100">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Data</h3>
+                <div className="flex gap-2">
+                  <button onClick={handleExport} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-tally-blue border border-tally-blue rounded-xl hover:bg-tally-blue hover:text-white transition-all">
+                    <Download size={16} /> Export
+                  </button>
+                  <button onClick={() => fileInputRef.current?.click()} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-tally-mint border border-tally-mint rounded-xl hover:bg-tally-mint hover:text-white transition-all">
+                    <Upload size={16} /> Import
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400 mt-2 text-center">Backup or restore your listings</p>
+              </div>
             </div>
           </aside>
 
@@ -847,6 +910,15 @@ export default function App() {
         onClose={() => setShowChangelogModal(false)}
         activeTab={changelogTab}
         onTabChange={setChangelogTab}
+      />
+
+      {/* Hidden file input for import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImport}
+        accept=".json"
+        className="hidden"
       />
     </div>
   );

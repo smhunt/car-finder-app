@@ -1,8 +1,18 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '0.2.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.2.0',
+    date: '2024-12-30',
+    changes: [
+      'Added Import/Export functionality for backing up and restoring listings',
+      'Export saves listings and weights to a JSON file',
+      'Import loads data from a previously exported JSON file',
+      'Data section added to Weights panel for easy access',
+    ],
+  },
   {
     version: '0.1.0',
     date: '2024-12-30',
@@ -45,8 +55,8 @@ export const HOW_IT_WORKS = [
 
 export const ROADMAP = [
   {
-    category: 'In Progress',
-    icon: '🚧',
+    category: 'Completed',
+    icon: '✅',
     items: [
       { title: 'Import/Export Data', description: 'Export your listings to JSON and import them on another device', priority: 'high' },
     ],
