@@ -1,8 +1,17 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.10.0';
+export const APP_VERSION = '0.10.1';
 
 export const CHANGELOG = [
+  {
+    version: '0.10.1',
+    date: '2024-12-30',
+    changes: [
+      'Fixed VIN decoder for 2022+ Chevrolet Bolt EV/EUV models',
+      'Added new Bolt VDS codes: FW, FX, FY, FZ for Gen 2 models',
+      'Fixed VIN position extraction bug affecting Chevrolet/Hyundai/Kia/Ford',
+    ],
+  },
   {
     version: '0.10.0',
     date: '2024-12-30',

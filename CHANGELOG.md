@@ -2,6 +2,13 @@
 
 All notable changes to Car Scorer will be documented in this file.
 
+## [0.10.1] - 2024-12-30
+
+### Fixed
+- VIN decoder now correctly identifies 2022+ Chevrolet Bolt EV/EUV models
+- Added new Bolt VDS codes: FW, FX, FY, FZ for Gen 2 (2022-2023) models
+- Fixed VIN position extraction bug (substring indexing) affecting Chevrolet, Hyundai, Kia, and Ford EV detection
+
 ## [0.10.0] - 2024-12-30
 
 ### Added
