@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Globe, Loader2, Search, CheckCircle, AlertCircle, Plus, ExternalLink, Zap, RefreshCw } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Globe, Loader2, Search, CheckCircle, AlertCircle, Plus, ExternalLink, Zap, RefreshCw, Info, Shield, ShieldAlert, MapPin, Calendar, Car } from 'lucide-react';
+import { validateVIN, decodeVIN, getVINInsights } from '../utils/vinDecoder';
 
 /**
  * Dealer Scraper Component
@@ -406,6 +407,163 @@ function formatForApp(data, locationInfo = {}) {
     priceHistory: data.price ? [{ price: data.price, date: new Date().toISOString().split('T')[0] }] : [],
     photos: data.images || [],
   };
+}
+
+/**
+ * VIN Display Component with decoded information
+ */
+function VINDisplay({ vin }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const vinAnalysis = useMemo(() => {
+    if (!vin) return null;
+    return getVINInsights(vin);
+  }, [vin]);
+
+  if (!vin || !vinAnalysis) return null;
+
+  const { isValid, summary, confidence, insights, warnings, decoded } = vinAnalysis;
+
+  return (
+    <div className="mt-4 p-4 bg-white rounded-lg border border-slate-200">
+      {/* VIN Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-400 uppercase tracking-wide">VIN</span>
+          {isValid ? (
+            <Shield size={14} className="text-tally-mint" />
+          ) : (
+            <ShieldAlert size={14} className="text-amber-500" />
+          )}
+        </div>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-tally-blue hover:text-tally-blue-dark flex items-center gap-1"
+        >
+          <Info size={12} />
+          {expanded ? 'Less' : 'More'}
+        </button>
+      </div>
+
+      {/* VIN Number */}
+      <div className="mt-2 font-mono text-sm text-charcoal tracking-wider select-all">
+        {vin}
+      </div>
+
+      {/* Quick Summary */}
+      <div className="mt-2 text-xs text-slate-500">
+        {summary}
+      </div>
+
+      {/* Expanded Details */}
+      {expanded && (
+        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+          {/* Confidence Score */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  confidence >= 70 ? 'bg-tally-mint' :
+                  confidence >= 40 ? 'bg-amber-400' : 'bg-red-400'
+                }`}
+                style={{ width: `${confidence}%` }}
+              />
+            </div>
+            <span className="text-xs text-slate-400">{confidence}% confidence</span>
+          </div>
+
+          {/* Decoded Info Grid */}
+          {decoded && (
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {decoded.year && (
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Calendar size={12} className="text-slate-400" />
+                  <span>Year: {decoded.year}</span>
+                </div>
+              )}
+              {decoded.make && (
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Car size={12} className="text-slate-400" />
+                  <span>Make: {decoded.make}</span>
+                </div>
+              )}
+              {decoded.country && (
+                <div className="flex items-center gap-2 text-slate-600">
+                  <MapPin size={12} className="text-slate-400" />
+                  <span>Origin: {decoded.country}</span>
+                </div>
+              )}
+              {decoded.plant && (
+                <div className="flex items-center gap-2 text-slate-600 col-span-2">
+                  <MapPin size={12} className="text-slate-400" />
+                  <span>Plant: {decoded.plant}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Insights */}
+          {insights && insights.length > 0 && (
+            <div className="space-y-1">
+              {insights.map((insight, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-slate-500">
+                  <CheckCircle size={12} className="text-tally-mint mt-0.5 flex-shrink-0" />
+                  <span>{insight}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Warnings */}
+          {warnings && warnings.length > 0 && (
+            <div className="space-y-1">
+              {warnings.map((warning, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-amber-600">
+                  <AlertCircle size={12} className="mt-0.5 flex-shrink-0" />
+                  <span>{warning}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Raw VIN Components */}
+          {decoded?.rawData && (
+            <div className="pt-2 border-t border-slate-100">
+              <div className="text-xs text-slate-400 mb-2">VIN Breakdown:</div>
+              <div className="flex gap-1 font-mono text-xs">
+                <span className="px-1.5 py-0.5 bg-tally-blue/10 text-tally-blue rounded" title="World Manufacturer ID">
+                  {decoded.rawData.wmi}
+                </span>
+                <span className="px-1.5 py-0.5 bg-tally-coral/10 text-tally-coral rounded" title="Vehicle Descriptor Section">
+                  {decoded.rawData.vds}
+                </span>
+                <span className="px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded" title="Check Digit">
+                  {decoded.rawData.checkDigit}
+                </span>
+                <span className="px-1.5 py-0.5 bg-tally-mint/10 text-tally-mint rounded" title="Year Code">
+                  {decoded.rawData.yearCode}
+                </span>
+                <span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded" title="Plant Code">
+                  {decoded.rawData.plantCode}
+                </span>
+                <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded" title="Serial Number">
+                  {decoded.rawData.serialNumber}
+                </span>
+              </div>
+              <div className="flex gap-4 mt-1 text-xs text-slate-400">
+                <span>WMI</span>
+                <span>VDS</span>
+                <span>Chk</span>
+                <span>Yr</span>
+                <span>Plt</span>
+                <span>Serial</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function DealerScraper({ onAddCar, onClose, locationPresets = [] }) {
@@ -914,12 +1072,9 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
                   </div>
                 )}
 
-                {/* VIN Display */}
+                {/* VIN Display with Decoded Info */}
                 {scrapedData.vin && (
-                  <div className="mt-4 p-3 bg-white rounded-lg border border-slate-200">
-                    <span className="text-xs text-slate-400">VIN: </span>
-                    <span className="font-mono text-sm text-charcoal">{scrapedData.vin}</span>
-                  </div>
+                  <VINDisplay vin={scrapedData.vin} />
                 )}
               </div>
 

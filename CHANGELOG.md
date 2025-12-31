@@ -2,6 +2,23 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.8.0] - 2024-12-30
+
+### Added
+- VIN Decoder utility module with comprehensive analysis capabilities
+- Basic VIN validation (17 characters, check digit, no I/O/Q)
+- World Manufacturer Identifier (WMI) decoding for major EV manufacturers
+  - Tesla (USA/China plants), Chevrolet/GM, Ford, Hyundai, Kia, Nissan
+  - BMW, Volkswagen, Rivian, Polestar, Lucid, Mercedes-Benz, Audi, Porsche
+- Model year decoding from VIN position 10 (2010-2039 support)
+- Country of origin detection (USA, Canada, Mexico, Japan, Korea, Germany, etc.)
+- Tesla-specific model decoding (Model 3, Y, S, X, Cybertruck, Semi)
+- Chevrolet Bolt EV vs Bolt EUV detection
+- VIN insights with confidence scoring and human-readable analysis
+- VINDisplay component in DealerScraper showing decoded info
+- Expandable VIN breakdown with color-coded segments (WMI, VDS, check, year, plant, serial)
+- Validation warnings for check digit mismatches (still shows decoded info)
+
 ## [0.7.1] - 2024-12-30
 
 ### Added

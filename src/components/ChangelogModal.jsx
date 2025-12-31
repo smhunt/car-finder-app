@@ -1,8 +1,20 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.7.1';
+export const APP_VERSION = '0.8.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.8.0',
+    date: '2024-12-30',
+    changes: [
+      'VIN Decoder utility - validates and decodes Vehicle Identification Numbers',
+      'WMI lookup for 15+ EV manufacturers (Tesla, Rivian, Lucid, etc.)',
+      'Tesla-specific model decoding (Model 3, Y, S, X, Cybertruck)',
+      'Chevrolet Bolt EV vs Bolt EUV detection from VIN',
+      'VIN breakdown display in DealerScraper with color-coded segments',
+      'Manufacturing plant and country of origin detection',
+    ],
+  },
   {
     version: '0.7.1',
     date: '2024-12-30',
