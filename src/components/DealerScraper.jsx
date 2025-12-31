@@ -261,6 +261,8 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
   const [selectedLocation, setSelectedLocation] = useState('');
   const [manualOverrides, setManualOverrides] = useState({});
 
+  const [useBrowser, setUseBrowser] = useState(false);
+
   const handleScrape = async () => {
     if (!url) return;
 
@@ -269,8 +271,9 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     setScrapedData(null);
 
     try {
-      // Call proxy to fetch the page HTML
-      const response = await fetch(`${PROXY_API}/api/scrape`, {
+      // Try simple fetch first, fallback to browser if needed
+      const endpoint = useBrowser ? '/api/scrape-browser' : '/api/scrape';
+      const response = await fetch(`${PROXY_API}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
@@ -281,7 +284,17 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
         throw new Error(errData.error || `HTTP ${response.status}`);
       }
 
-      const { html, url: finalUrl } = await response.json();
+      const result = await response.json();
+      const { html, url: finalUrl } = result;
+
+      // Check if we got blocked (minimal HTML with bot protection)
+      if (html.length < 1000 && (html.includes('Incapsula') || html.includes('challenge') || html.includes('captcha'))) {
+        if (!useBrowser) {
+          setError('Site has bot protection. Try "Use Browser" mode for better results.');
+          setStatus('error');
+          return;
+        }
+      }
 
       // Parse HTML in browser
       const parser = new DOMParser();
@@ -543,9 +556,21 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
                   Scrape
                 </button>
               </div>
-              <p className="text-xs text-slate-400 mt-2">
-                Paste any dealer listing URL to extract vehicle data automatically
-              </p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xs text-slate-400">
+                  Paste any dealer listing URL to extract vehicle data automatically
+                </p>
+                <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useBrowser}
+                    onChange={(e) => setUseBrowser(e.target.checked)}
+                    className="rounded border-slate-300"
+                  />
+                  <span>Use Browser</span>
+                  <span className="text-slate-400">(for protected sites)</span>
+                </label>
+              </div>
             </div>
           )}
 
