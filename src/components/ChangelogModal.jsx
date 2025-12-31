@@ -1,8 +1,20 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.8.0';
+export const APP_VERSION = '0.9.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.9.0',
+    date: '2024-12-30',
+    changes: [
+      'DealerScraper UX overhaul - clear Input → Scrape → Review → Save flow',
+      'Field status badges (Auto-detected, Edited, Missing) for scraped data',
+      'Review step before saving - edit any field before adding to listings',
+      'Extraction summary card with EV badge and confidence score',
+      'Advanced JSON paste option tucked in collapsible section',
+      'Rebranded from "EV Value Scorer" to "Car Scorer"',
+    ],
+  },
   {
     version: '0.8.0',
     date: '2024-12-30',
@@ -230,7 +242,7 @@ const ChangelogModal = ({ isOpen, onClose, activeTab = 'changelog', onTabChange 
           {activeTab === 'howItWorks' && (
             <div className="space-y-6">
               <p className="text-slate-500 text-sm">
-                EV Value Scorer uses Multi-Criteria Decision Analysis (MCDA) to help you find the best value used electric vehicle.
+                Car Scorer uses Multi-Criteria Decision Analysis (MCDA) to help you find the best value used vehicle.
               </p>
               <div className="space-y-4">
                 {HOW_IT_WORKS.map((step, idx) => (
@@ -258,7 +270,7 @@ const ChangelogModal = ({ isOpen, onClose, activeTab = 'changelog', onTabChange 
           {activeTab === 'roadmap' && (
             <div className="space-y-6">
               <p className="text-slate-500 text-sm">
-                Upcoming features and improvements planned for EV Value Scorer.
+                Upcoming features and improvements planned for Car Scorer.
               </p>
               {ROADMAP.map(category => (
                 <div key={category.category}>

@@ -1392,7 +1392,7 @@ export default function App() {
                 <Car size={24} className="text-white" />
               </div>
               <div>
-                <h1 className="font-display font-bold text-xl text-charcoal">EV Value Scorer</h1>
+                <h1 className="font-display font-bold text-xl text-charcoal">Car Scorer</h1>
                 <div className={`flex items-center gap-1 text-xs ${saveStatus === 'saved' ? 'text-tally-mint' : saveStatus === 'saving' ? 'text-amber-500' : 'text-tally-coral'}`}>
                   {saveStatus === 'saving' && <Loader2 size={12} className="animate-spin" />}
                   {saveStatus === 'saved' && <Database size={12} />}
