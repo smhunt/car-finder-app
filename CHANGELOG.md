@@ -10,6 +10,8 @@ All notable changes to EV Value Scorer will be documented in this file.
 - JSON-LD structured data extraction from pages
 - DOM-based price/mileage extraction with smart selectors
 - Enhanced CarCard expanded view with 12+ vehicle detail fields
+- Smart make/model detection with prioritized sources (URL > og:title > title > header)
+- Detection scoring system to pick best match (prevents wrong make detection)
 
 ## [0.7.0] - 2024-12-30
 

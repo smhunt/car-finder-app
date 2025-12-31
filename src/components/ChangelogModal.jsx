@@ -11,6 +11,7 @@ export const CHANGELOG = [
       'JSON-LD structured data extraction from dealer pages',
       'DOM-based price/mileage extraction with smart selectors',
       'Enhanced CarCard with 12+ vehicle detail fields',
+      'Smart make/model detection with URL/title/og:title prioritization',
     ],
   },
   {

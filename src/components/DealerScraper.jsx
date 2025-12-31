@@ -105,16 +105,148 @@ function parseMileage(str) {
   return (num >= 0 && num <= 500000) ? num : null;
 }
 
-function detectMake(text) {
-  const upper = text.toUpperCase();
+// Normalize make names
+function normalizeMake(make) {
+  const aliases = {
+    'chevy': 'Chevrolet',
+    'vw': 'Volkswagen',
+    'mercedes': 'Mercedes-Benz',
+    'merc': 'Mercedes-Benz',
+  };
+  return aliases[make.toLowerCase()] || make;
+}
+
+// Smart make/model detection with source prioritization
+function detectVehicleInfo(data) {
+  const { pageTitle = '', pageUrl = '', pageText = '' } = data;
+
+  // Build candidate list with scores
+  const candidates = [];
+
+  // 1. Parse URL (highest priority) - URLs are usually clean
+  const urlLower = pageUrl.toLowerCase();
   for (const make of KNOWN_MAKES) {
-    if (upper.includes(make.toUpperCase())) {
-      if (make === 'Chevy') return 'Chevrolet';
-      if (make === 'VW') return 'Volkswagen';
-      return make;
+    const makeLower = make.toLowerCase();
+    // Check for /make/ or /make- patterns in URL
+    if (urlLower.includes(`/${makeLower}/`) ||
+        urlLower.includes(`/${makeLower}-`) ||
+        urlLower.includes(`-${makeLower}-`) ||
+        urlLower.includes(`-${makeLower}/`)) {
+      const normalizedMake = normalizeMake(make);
+      // Look for model in URL too
+      const models = EV_MODELS[normalizedMake] || [];
+      for (const model of models) {
+        const modelSlug = model.toLowerCase().replace(/\s+/g, '-');
+        const modelNoSpace = model.toLowerCase().replace(/\s+/g, '');
+        if (urlLower.includes(modelSlug) || urlLower.includes(modelNoSpace)) {
+          candidates.push({ make: normalizedMake, model, score: 100, source: 'url' });
+        }
+      }
+      // Make found in URL without model
+      if (!candidates.find(c => c.make === normalizedMake)) {
+        candidates.push({ make: normalizedMake, model: null, score: 80, source: 'url' });
+      }
     }
   }
-  return null;
+
+  // 2. Parse page title (high priority) - "2024 Tesla Model 3 Long Range"
+  const titlePattern = /\b(20[12]\d)\s+([A-Za-z-]+)\s+(.+?)(?:\s+[-|]|$)/i;
+  const titleMatch = pageTitle.match(titlePattern);
+  if (titleMatch) {
+    const [, year, possibleMake, rest] = titleMatch;
+    for (const make of KNOWN_MAKES) {
+      if (possibleMake.toLowerCase() === make.toLowerCase() ||
+          possibleMake.toLowerCase() === make.toLowerCase().replace('-', '')) {
+        const normalizedMake = normalizeMake(make);
+        const models = EV_MODELS[normalizedMake] || [];
+        for (const model of models) {
+          if (rest.toLowerCase().startsWith(model.toLowerCase())) {
+            candidates.push({ make: normalizedMake, model, year: parseInt(year), score: 95, source: 'title' });
+          }
+        }
+        if (!candidates.find(c => c.make === normalizedMake && c.source === 'title')) {
+          candidates.push({ make: normalizedMake, model: null, year: parseInt(year), score: 75, source: 'title' });
+        }
+      }
+    }
+  }
+
+  // 3. Look for "Year Make Model" pattern anywhere in title
+  for (const make of KNOWN_MAKES) {
+    const normalizedMake = normalizeMake(make);
+    const models = EV_MODELS[normalizedMake] || [];
+    for (const model of models) {
+      // Pattern: "2024 Tesla Model 3" or "Tesla Model 3"
+      const patterns = [
+        new RegExp(`\\b(20[12]\\d)\\s+${make}\\s+${model.replace(/\s+/g, '\\s*')}\\b`, 'i'),
+        new RegExp(`\\b${make}\\s+${model.replace(/\s+/g, '\\s*')}\\b`, 'i'),
+      ];
+      for (const pattern of patterns) {
+        if (pattern.test(pageTitle)) {
+          const yearMatch = pageTitle.match(/\b(20[12]\d)\b/);
+          candidates.push({
+            make: normalizedMake,
+            model,
+            year: yearMatch ? parseInt(yearMatch[1]) : null,
+            score: 90,
+            source: 'title-pattern'
+          });
+        }
+      }
+    }
+  }
+
+  // 4. Check first 500 chars of page text (medium priority)
+  const headerText = pageText.substring(0, 500);
+  for (const make of KNOWN_MAKES) {
+    const normalizedMake = normalizeMake(make);
+    const models = EV_MODELS[normalizedMake] || [];
+    for (const model of models) {
+      const pattern = new RegExp(`\\b${make}\\s+${model.replace(/\s+/g, '\\s*')}\\b`, 'i');
+      if (pattern.test(headerText)) {
+        candidates.push({ make: normalizedMake, model, score: 70, source: 'header' });
+      }
+    }
+  }
+
+  // 5. Fallback: any make/model in full text (lowest priority)
+  if (candidates.length === 0) {
+    for (const make of KNOWN_MAKES) {
+      const normalizedMake = normalizeMake(make);
+      // Use word boundary to avoid partial matches
+      const makePattern = new RegExp(`\\b${make}\\b`, 'i');
+      if (makePattern.test(pageTitle) || makePattern.test(headerText)) {
+        const models = EV_MODELS[normalizedMake] || [];
+        for (const model of models) {
+          const modelPattern = new RegExp(`\\b${model.replace(/\s+/g, '\\s*')}\\b`, 'i');
+          if (modelPattern.test(pageTitle) || modelPattern.test(headerText)) {
+            candidates.push({ make: normalizedMake, model, score: 50, source: 'fallback' });
+          }
+        }
+        if (!candidates.find(c => c.make === normalizedMake)) {
+          candidates.push({ make: normalizedMake, model: null, score: 30, source: 'fallback' });
+        }
+      }
+    }
+  }
+
+  // Sort by score and return best match
+  candidates.sort((a, b) => b.score - a.score);
+
+  if (candidates.length > 0) {
+    const best = candidates[0];
+    console.log('[Scraper] Vehicle detection candidates:', candidates.slice(0, 5));
+    console.log('[Scraper] Selected:', best);
+    return best;
+  }
+
+  return { make: null, model: null, score: 0, source: null };
+}
+
+// Legacy functions for backward compatibility
+function detectMake(text) {
+  const result = detectVehicleInfo({ pageTitle: text, pageText: text, pageUrl: '' });
+  return result.make;
 }
 
 function detectModel(text, make) {
@@ -161,37 +293,61 @@ function extractDealerFromUrl(url) {
 
 // Parse scraped page data into vehicle object
 function parseScrapedData(data) {
-  const { pageText = '', pageTitle = '', pageUrl = '', priceFromDom, mileageFromDom } = data;
-  const fullText = `${pageTitle} ${pageText}`;
+  const { pageText = '', pageTitle = '', pageUrl = '', priceFromDom, mileageFromDom, ogTitle = '', h1Text = '' } = data;
 
-  const year = extractFirst(fullText, PATTERNS.year);
-  const make = detectMake(fullText);
-  const model = detectModel(fullText, make);
-  const trim = extractTrim(fullText);
-  const vin = extractFirst(fullText, PATTERNS.vin);
+  // Use structured sources for vehicle detection (prioritized)
+  const titleForDetection = ogTitle || pageTitle || h1Text;
+  const vehicleInfo = detectVehicleInfo({
+    pageTitle: titleForDetection,
+    pageUrl,
+    pageText: pageText.substring(0, 2000), // Only use first 2000 chars
+  });
 
-  // Get price - prefer DOM extraction
+  const { make, model, year: detectedYear } = vehicleInfo;
+
+  // Get year from detection or fallback to pattern matching
+  let year = detectedYear;
+  if (!year) {
+    const yearStr = extractFirst(titleForDetection, PATTERNS.year) ||
+                    extractFirst(pageText.substring(0, 500), PATTERNS.year);
+    year = yearStr ? parseInt(yearStr) : null;
+  }
+
+  // Extract trim from title first (most reliable)
+  const trim = extractTrim(titleForDetection) || extractTrim(pageText.substring(0, 500));
+
+  // VIN from full text
+  const vin = extractFirst(pageText, PATTERNS.vin);
+
+  // Get price - prefer DOM extraction, then title, then text
   let price = priceFromDom ? parsePrice(priceFromDom) : null;
   if (!price) {
-    const priceStr = extractFirst(fullText, PATTERNS.price);
+    const priceStr = extractFirst(titleForDetection, PATTERNS.price) ||
+                     extractFirst(pageText.substring(0, 1000), PATTERNS.price);
     price = parsePrice(priceStr);
   }
 
   // Get mileage - prefer DOM extraction
   let mileage = mileageFromDom ? parseMileage(mileageFromDom) : null;
   if (!mileage) {
-    const mileageStr = extractFirst(fullText, PATTERNS.mileage);
+    const mileageStr = extractFirst(titleForDetection, PATTERNS.mileage) ||
+                       extractFirst(pageText.substring(0, 1000), PATTERNS.mileage);
     mileage = parseMileage(mileageStr);
   }
 
-  const color = extractColor(fullText);
+  // Color from title or early page text
+  const color = extractColor(titleForDetection) || extractColor(pageText.substring(0, 1000));
+
+  // Dealer name
   const dealer = data.dealerName || extractDealerFromUrl(pageUrl);
 
   // Get EV specs if known model
   const specs = make && model && EV_SPECS[make]?.[model];
 
+  console.log('[Scraper] Parsed data:', { year, make, model, trim, price, mileage, color, dealer });
+
   return {
-    year: parseInt(year) || null,
+    year,
     make,
     model,
     trim,
@@ -206,6 +362,7 @@ function parseScrapedData(data) {
     heatPump: specs?.heatPump ?? true,
     isElectric: !!model,
     confidence: calculateConfidence({ year, make, model, price, mileage }),
+    detectionSource: vehicleInfo.source,
   };
 }
 
@@ -303,7 +460,12 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
       // Extract text content
       const pageTitle = doc.title || '';
       const pageText = doc.body?.innerText || '';
-      const fullText = `${pageTitle} ${pageText}`;
+
+      // Extract og:title (often has clean "Year Make Model" format)
+      const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || '';
+
+      // Extract h1 text (usually the vehicle title)
+      const h1Text = doc.querySelector('h1')?.textContent?.trim() || '';
 
       // Extract structured data (JSON-LD)
       let structuredData = {};
@@ -311,11 +473,26 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
       jsonLdScripts.forEach(script => {
         try {
           const data = JSON.parse(script.textContent);
-          if (data['@type'] === 'Vehicle' || data['@type'] === 'Car' || data['@type'] === 'Product') {
-            structuredData = { ...structuredData, ...data };
+          // Handle array of items
+          const items = Array.isArray(data) ? data : [data];
+          for (const item of items) {
+            if (item['@type'] === 'Vehicle' || item['@type'] === 'Car' ||
+                item['@type'] === 'Product' || item['@type'] === 'Offer') {
+              structuredData = { ...structuredData, ...item };
+            }
+            // Check for nested items
+            if (item['@graph']) {
+              for (const nested of item['@graph']) {
+                if (nested['@type'] === 'Vehicle' || nested['@type'] === 'Car' || nested['@type'] === 'Product') {
+                  structuredData = { ...structuredData, ...nested };
+                }
+              }
+            }
           }
         } catch {}
       });
+
+      console.log('[Scraper] Extracted metadata:', { pageTitle, ogTitle, h1Text, structuredData });
 
       // Try to extract price from DOM
       let priceFromDom = null;
@@ -376,6 +553,8 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
         mileageFromDom,
         dealerName,
         structuredData,
+        ogTitle,
+        h1Text,
       });
 
       // Merge with structured data if available
