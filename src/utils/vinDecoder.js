@@ -1050,13 +1050,51 @@ export function getVINInsights(vin) {
     insights.push(`Assembly country: ${decoded.plantCountry}`);
   }
 
-  // EV-specific insights
-  const evMakes = ['Tesla', 'Rivian', 'Lucid', 'Polestar'];
-  const evModels = ['Bolt EV', 'Bolt EUV', 'Model 3', 'Model Y', 'Model S', 'Model X',
-                   'Leaf', 'Ioniq 5', 'Ioniq 6', 'EV6', 'Mustang Mach-E', 'ID.4'];
+  // Drive type insight
+  if (decoded.driveType) {
+    insights.push(`Drive configuration: ${decoded.driveType}`);
+  }
 
-  if (evMakes.includes(decoded.make) || evModels.includes(decoded.model)) {
+  // Battery info insight
+  if (decoded.batteryInfo) {
+    const batteryDesc = decoded.batteryInfo.type || 'Battery';
+    const capacity = decoded.batteryInfo.capacity ? ` - ${decoded.batteryInfo.capacity}` : '';
+    insights.push(`Battery pack: ${batteryDesc}${capacity}`);
+  }
+
+  // Body type insight
+  if (decoded.bodyType) {
+    insights.push(`Body style: ${decoded.bodyType}`);
+  }
+
+  // Generation info
+  if (decoded.generation) {
+    insights.push(`Generation: ${decoded.generation}`);
+  }
+
+  // EV-specific insights - now using the isElectric flag from decoder
+  if (decoded.isElectric) {
     insights.push('This is an electric vehicle (EV)');
+  } else {
+    // Fallback to pattern matching for EVs not detected via VDS
+    const evMakes = ['Tesla', 'Rivian', 'Lucid', 'Polestar'];
+    const evModels = ['Bolt EV', 'Bolt EUV', 'Model 3', 'Model Y', 'Model S', 'Model X',
+                     'Leaf', 'Ioniq 5', 'Ioniq 6', 'EV6', 'Mustang Mach-E', 'ID.4', 'F-150 Lightning'];
+
+    if (evMakes.includes(decoded.make) || evModels.includes(decoded.model)) {
+      insights.push('This is an electric vehicle (EV)');
+    }
+  }
+
+  // Plant establishment date
+  if (decoded.plantEstablished) {
+    const yearsOld = new Date().getFullYear() - decoded.plantEstablished;
+    insights.push(`Assembly plant operating for ${yearsOld}+ years (est. ${decoded.plantEstablished})`);
+  }
+
+  // Manufacturer note
+  if (decoded.manufacturerNote) {
+    insights.push(decoded.manufacturerNote);
   }
 
   // Warnings for suspicious patterns
@@ -1068,10 +1106,13 @@ export function getVINInsights(vin) {
     warnings.push('Manufacturer not recognized - may be a rare or specialty vehicle');
   }
 
-  // Build summary
+  // Build summary - include drive type in summary if available
   let summary;
   if (decoded.make && decoded.model && decoded.year) {
     summary = `${decoded.year} ${decoded.make} ${decoded.model}`;
+    if (decoded.variant) {
+      summary += ` ${decoded.variant}`;
+    }
     if (decoded.country) {
       summary += ` (${decoded.country})`;
     }
