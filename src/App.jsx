@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Car, Plus, Trash2, Settings, TrendingUp, TrendingDown, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare, History, Image, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Car, Plus, Trash2, Settings, TrendingUp, TrendingDown, ChevronDown, ChevronUp, Zap, Gauge, MapPin, Calendar, DollarSign, Thermometer, Smartphone, Ruler, AlertTriangle, Star, X, RotateCcw, Database, Loader2, Edit2, MessageSquare, Download, Upload, ExternalLink, Link, GitCompare, Check, Square, CheckSquare, History, Image, Camera, ChevronLeft, ChevronRight, Globe } from 'lucide-react';
 import ChangelogModal, { APP_VERSION } from './components/ChangelogModal';
+import DealerScraper from './components/DealerScraper';
 
 // ============ STORAGE CONFIGURATION ============
 const STORAGE_CONFIG = {
@@ -1177,6 +1178,7 @@ export default function App() {
   const [compareMode, setCompareMode] = useState(false);
   const [selectedForCompare, setSelectedForCompare] = useState([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showScraperModal, setShowScraperModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('saved');
   const [editCar, setEditCar] = useState(null);
@@ -1418,6 +1420,9 @@ export default function App() {
                   <button onClick={() => setShowWeights(!showWeights)} className={`tally-btn ${showWeights ? 'tally-btn-primary' : 'tally-btn-secondary'}`}>
                     <Settings size={18} /> Weights
                   </button>
+                  <button onClick={() => setShowScraperModal(true)} className="tally-btn tally-btn-secondary">
+                    <Globe size={18} /> Scrape
+                  </button>
                   <button onClick={() => { setEditCar(null); setShowAddModal(true); }} className="tally-btn tally-btn-primary">
                     <Plus size={18} /> Add Listing
                   </button>
@@ -1536,6 +1541,15 @@ export default function App() {
           cars={carsToCompare}
           onClose={() => setShowCompareModal(false)}
           weights={weights}
+        />
+      )}
+
+      {/* Dealer Scraper Modal */}
+      {showScraperModal && (
+        <DealerScraper
+          onAddCar={(car) => setCars(prev => [...prev, car])}
+          onClose={() => setShowScraperModal(false)}
+          locationPresets={LOCATION_PRESETS}
         />
       )}
     </div>

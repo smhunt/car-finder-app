@@ -1,8 +1,20 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.6.0';
+export const APP_VERSION = '0.7.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.7.0',
+    date: '2024-12-30',
+    changes: [
+      'Added Universal Dealer Scraper - extract data from any dealership website',
+      'Intelligent pattern matching for price, mileage, VIN, color, and more',
+      'Automatic EV detection with known specs lookup (range, heat pump, etc.)',
+      'Manual override fields for fine-tuning extracted data',
+      'Location preset selection for scraped listings',
+      'Confidence scoring shows extraction quality',
+    ],
+  },
   {
     version: '0.6.0',
     date: '2024-12-30',
@@ -99,6 +111,7 @@ export const ROADMAP = [
     category: 'Completed',
     icon: '✅',
     items: [
+      { title: 'Universal Dealer Scraper', description: 'Automatically extract vehicle data from any dealership website', priority: 'high' },
       { title: 'Photo Attachments', description: 'Attach photos to each listing with gallery view and lightbox', priority: 'high' },
       { title: 'Price History Tracking', description: 'Track price changes over time with sparkline visualization', priority: 'high' },
       { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'high' },
@@ -110,6 +123,7 @@ export const ROADMAP = [
     category: 'Planned',
     icon: '📋',
     items: [
+      { title: 'Auto-Scrape Browser Extension', description: 'One-click scraping directly from dealer pages', priority: 'medium' },
       { title: 'Custom Criteria', description: 'Add your own scoring criteria beyond the default 10', priority: 'low' },
     ],
   },

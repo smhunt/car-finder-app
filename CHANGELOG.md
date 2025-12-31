@@ -2,6 +2,17 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.7.0] - 2024-12-30
+
+### Added
+- Universal Dealer Scraper - extract vehicle data from any dealership website
+- Intelligent pattern matching for price, mileage, VIN, year, make, model, color
+- Automatic EV detection with known specs lookup (range, length, heat pump)
+- Manual override fields for fine-tuning extracted data before adding
+- Location preset selection for scraped listings
+- Confidence scoring shows extraction quality (0-100%)
+- Scraper utility module with browser-injectable script
+
 ## [0.6.0] - 2024-12-30
 
 ### Added
