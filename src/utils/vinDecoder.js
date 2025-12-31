@@ -678,6 +678,7 @@ const TESLA_BATTERY_CODES = {
  * Position 4-5 helps identify Bolt EV vs Bolt EUV
  */
 const CHEVROLET_BOLT_CODES = {
+  // Original Bolt EV (2017-2021)
   'ZE': {
     model: 'Bolt EV',
     bodyType: 'Hatchback',
@@ -685,6 +686,7 @@ const CHEVROLET_BOLT_CODES = {
     battery: '65 kWh (usable 60 kWh)',
     generation: 'Gen 1 (2017-2021)',
   },
+  // Bolt EUV (2022-2023)
   'ZU': {
     model: 'Bolt EUV',
     bodyType: 'Crossover',
@@ -693,13 +695,49 @@ const CHEVROLET_BOLT_CODES = {
     generation: 'Gen 1 (2022-2023)',
     note: 'Extended Utility Vehicle - larger than Bolt EV',
   },
+  // Refreshed Bolt EV (2022-2023) - ZW code
   'ZW': {
     model: 'Bolt EV',
     bodyType: 'Hatchback',
     driveType: 'FWD',
     battery: '65 kWh (usable 60 kWh)',
-    generation: 'Gen 1 Refresh (2022-2023)',
+    generation: 'Gen 2 Refresh (2022-2023)',
     note: 'Refreshed exterior and interior',
+  },
+  // 2022-2023 Bolt EV - FW code (1LT/2LT trims)
+  'FW': {
+    model: 'Bolt EV',
+    bodyType: 'Hatchback',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 2 (2022-2023)',
+    note: '1LT or 2LT trim',
+  },
+  // 2022-2023 Bolt EUV - FX code
+  'FX': {
+    model: 'Bolt EUV',
+    bodyType: 'Crossover',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 1 (2022-2023)',
+    note: 'LT or Premier trim',
+  },
+  // Additional Bolt EV codes
+  'FY': {
+    model: 'Bolt EV',
+    bodyType: 'Hatchback',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 2 (2022-2023)',
+  },
+  // Additional Bolt EUV codes
+  'FZ': {
+    model: 'Bolt EUV',
+    bodyType: 'Crossover',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 1 (2022-2023)',
+    note: 'Launch Edition or Premier',
   },
 };
 
@@ -903,8 +941,9 @@ export function decodeVIN(vin) {
   }
 
   // Chevrolet Bolt-specific decoding
+  // VIN positions 4-5 (1-indexed) = JS indices 3-4
   if (make === 'Chevrolet') {
-    const boltCode = cleanVin.substring(4, 6);
+    const boltCode = cleanVin.substring(3, 5);
     const boltInfo = CHEVROLET_BOLT_CODES[boltCode];
     if (boltInfo) {
       isElectric = true;
@@ -920,8 +959,9 @@ export function decodeVIN(vin) {
   }
 
   // Hyundai/Kia EV decoding
+  // VIN positions 4-5 (1-indexed) = JS indices 3-4
   if (make === 'Hyundai' || make === 'Kia') {
-    const evCode = cleanVin.substring(4, 6);
+    const evCode = cleanVin.substring(3, 5);
     const evInfo = HYUNDAI_KIA_EV_CODES[evCode];
     if (evInfo) {
       isElectric = true;
@@ -935,8 +975,9 @@ export function decodeVIN(vin) {
   }
 
   // Ford EV decoding
+  // VIN positions 4-5 (1-indexed) = JS indices 3-4
   if (make === 'Ford') {
-    const fordEvCode = cleanVin.substring(4, 6);
+    const fordEvCode = cleanVin.substring(3, 5);
     const fordEvInfo = FORD_EV_CODES[fordEvCode];
     if (fordEvInfo) {
       isElectric = true;
