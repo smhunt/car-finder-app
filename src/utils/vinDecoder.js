@@ -26,105 +26,565 @@ const INVALID_CHARACTERS = ['I', 'O', 'Q'];
  */
 const WMI_DATABASE = {
   // Tesla
-  '5YJ': { make: 'Tesla', country: 'USA', plant: 'Fremont, California' },
-  'XP7': { make: 'Tesla', country: 'China', plant: 'Shanghai Gigafactory' },
-  '7SA': { make: 'Tesla', country: 'USA', plant: 'Austin Gigafactory, Texas' },
-  'LRW': { make: 'Tesla', country: 'China', plant: 'Shanghai Gigafactory' },
+  '5YJ': {
+    make: 'Tesla',
+    fullName: 'Tesla, Inc.',
+    country: 'USA',
+    plant: 'Fremont, California',
+    plantCity: 'Fremont',
+    plantState: 'CA',
+    established: 2010,
+  },
+  'XP7': {
+    make: 'Tesla',
+    fullName: 'Tesla, Inc.',
+    country: 'China',
+    plant: 'Shanghai Gigafactory',
+    plantCity: 'Shanghai',
+    established: 2019,
+    note: 'Gigafactory 3',
+  },
+  '7SA': {
+    make: 'Tesla',
+    fullName: 'Tesla, Inc.',
+    country: 'USA',
+    plant: 'Austin Gigafactory, Texas',
+    plantCity: 'Austin',
+    plantState: 'TX',
+    established: 2022,
+    note: 'Gigafactory Texas',
+  },
+  'LRW': {
+    make: 'Tesla',
+    fullName: 'Tesla, Inc.',
+    country: 'China',
+    plant: 'Shanghai Gigafactory',
+    plantCity: 'Shanghai',
+    established: 2019,
+    note: 'Gigafactory 3',
+  },
 
   // Chevrolet/GM
-  '1G1': { make: 'Chevrolet', country: 'USA', division: 'Chevrolet' },
-  '1GC': { make: 'Chevrolet', country: 'USA', division: 'Chevrolet Truck' },
-  '1GT': { make: 'GMC', country: 'USA', division: 'GMC Truck' },
-  '2G1': { make: 'Chevrolet', country: 'Canada', division: 'Chevrolet' },
-  '3G1': { make: 'Chevrolet', country: 'Mexico', division: 'Chevrolet' },
+  '1G1': {
+    make: 'Chevrolet',
+    fullName: 'General Motors - Chevrolet',
+    country: 'USA',
+    division: 'Chevrolet Passenger',
+    bodyType: 'Passenger Car',
+  },
+  '1GC': {
+    make: 'Chevrolet',
+    fullName: 'General Motors - Chevrolet',
+    country: 'USA',
+    division: 'Chevrolet Truck',
+    bodyType: 'Truck/SUV',
+  },
+  '1GT': {
+    make: 'GMC',
+    fullName: 'General Motors - GMC',
+    country: 'USA',
+    division: 'GMC Truck',
+    bodyType: 'Truck/SUV',
+  },
+  '2G1': {
+    make: 'Chevrolet',
+    fullName: 'General Motors - Chevrolet',
+    country: 'Canada',
+    division: 'Chevrolet',
+    plant: 'Oshawa Assembly',
+    plantCity: 'Oshawa',
+    plantState: 'ON',
+  },
+  '3G1': {
+    make: 'Chevrolet',
+    fullName: 'General Motors - Chevrolet',
+    country: 'Mexico',
+    division: 'Chevrolet',
+  },
 
   // Ford
-  '1FA': { make: 'Ford', country: 'USA', division: 'Ford' },
-  '1FB': { make: 'Ford', country: 'USA', division: 'Ford' },
-  '1FM': { make: 'Ford', country: 'USA', division: 'Ford Multi-Purpose' },
-  '1FT': { make: 'Ford', country: 'USA', division: 'Ford Truck' },
-  '3FA': { make: 'Ford', country: 'Mexico', division: 'Ford' },
-  '3FM': { make: 'Ford', country: 'Mexico', division: 'Ford Multi-Purpose' },
+  '1FA': {
+    make: 'Ford',
+    fullName: 'Ford Motor Company',
+    country: 'USA',
+    division: 'Ford Passenger',
+    bodyType: 'Passenger Car',
+  },
+  '1FB': {
+    make: 'Ford',
+    fullName: 'Ford Motor Company',
+    country: 'USA',
+    division: 'Ford Bus/Van',
+    bodyType: 'Van/Bus',
+  },
+  '1FM': {
+    make: 'Ford',
+    fullName: 'Ford Motor Company',
+    country: 'USA',
+    division: 'Ford Multi-Purpose',
+    bodyType: 'SUV/Crossover',
+  },
+  '1FT': {
+    make: 'Ford',
+    fullName: 'Ford Motor Company',
+    country: 'USA',
+    division: 'Ford Truck',
+    bodyType: 'Truck',
+  },
+  '3FA': {
+    make: 'Ford',
+    fullName: 'Ford Motor Company',
+    country: 'Mexico',
+    division: 'Ford',
+    plant: 'Hermosillo Assembly',
+    plantCity: 'Hermosillo',
+  },
+  '3FM': {
+    make: 'Ford',
+    fullName: 'Ford Motor Company',
+    country: 'Mexico',
+    division: 'Ford Multi-Purpose',
+    bodyType: 'SUV/Crossover',
+  },
 
   // Hyundai
-  'KM8': { make: 'Hyundai', country: 'South Korea', division: 'Hyundai' },
-  '5NM': { make: 'Hyundai', country: 'USA', plant: 'Montgomery, Alabama' },
-  '5NP': { make: 'Hyundai', country: 'USA', plant: 'Montgomery, Alabama' },
+  'KM8': {
+    make: 'Hyundai',
+    fullName: 'Hyundai Motor Company',
+    country: 'South Korea',
+    division: 'Hyundai',
+    plant: 'Ulsan Plant',
+    plantCity: 'Ulsan',
+  },
+  '5NM': {
+    make: 'Hyundai',
+    fullName: 'Hyundai Motor Company',
+    country: 'USA',
+    plant: 'Montgomery, Alabama',
+    plantCity: 'Montgomery',
+    plantState: 'AL',
+    established: 2005,
+  },
+  '5NP': {
+    make: 'Hyundai',
+    fullName: 'Hyundai Motor Company',
+    country: 'USA',
+    plant: 'Montgomery, Alabama',
+    plantCity: 'Montgomery',
+    plantState: 'AL',
+    established: 2005,
+  },
 
   // Kia
-  '5XY': { make: 'Kia', country: 'USA', plant: 'West Point, Georgia' },
-  'KND': { make: 'Kia', country: 'South Korea', division: 'Kia' },
-  'KNA': { make: 'Kia', country: 'South Korea', division: 'Kia' },
+  '5XY': {
+    make: 'Kia',
+    fullName: 'Kia Corporation',
+    country: 'USA',
+    plant: 'West Point, Georgia',
+    plantCity: 'West Point',
+    plantState: 'GA',
+    established: 2009,
+  },
+  'KND': {
+    make: 'Kia',
+    fullName: 'Kia Corporation',
+    country: 'South Korea',
+    division: 'Kia',
+    plant: 'Gwangju Plant',
+    plantCity: 'Gwangju',
+  },
+  'KNA': {
+    make: 'Kia',
+    fullName: 'Kia Corporation',
+    country: 'South Korea',
+    division: 'Kia',
+    plant: 'Hwaseong Plant',
+    plantCity: 'Hwaseong',
+  },
 
   // Nissan
-  '1N4': { make: 'Nissan', country: 'USA', division: 'Nissan' },
-  '1N6': { make: 'Nissan', country: 'USA', division: 'Nissan Truck' },
-  '3N1': { make: 'Nissan', country: 'Mexico', division: 'Nissan' },
-  'JN1': { make: 'Nissan', country: 'Japan', division: 'Nissan' },
-  'JN8': { make: 'Nissan', country: 'Japan', division: 'Nissan' },
+  '1N4': {
+    make: 'Nissan',
+    fullName: 'Nissan Motor Corporation',
+    country: 'USA',
+    division: 'Nissan Passenger',
+    plant: 'Smyrna, Tennessee',
+    plantCity: 'Smyrna',
+    plantState: 'TN',
+  },
+  '1N6': {
+    make: 'Nissan',
+    fullName: 'Nissan Motor Corporation',
+    country: 'USA',
+    division: 'Nissan Truck',
+    bodyType: 'Truck',
+    plant: 'Canton, Mississippi',
+    plantCity: 'Canton',
+    plantState: 'MS',
+  },
+  '3N1': {
+    make: 'Nissan',
+    fullName: 'Nissan Motor Corporation',
+    country: 'Mexico',
+    division: 'Nissan',
+    plant: 'Aguascalientes Plant',
+    plantCity: 'Aguascalientes',
+  },
+  'JN1': {
+    make: 'Nissan',
+    fullName: 'Nissan Motor Corporation',
+    country: 'Japan',
+    division: 'Nissan',
+    plant: 'Oppama Plant',
+    plantCity: 'Yokosuka',
+  },
+  'JN8': {
+    make: 'Nissan',
+    fullName: 'Nissan Motor Corporation',
+    country: 'Japan',
+    division: 'Nissan SUV',
+    bodyType: 'SUV/Crossover',
+  },
 
   // BMW
-  'WBA': { make: 'BMW', country: 'Germany', division: 'BMW' },
-  'WBS': { make: 'BMW', country: 'Germany', division: 'BMW M' },
-  'WBY': { make: 'BMW', country: 'Germany', division: 'BMW i' },
-  '5UX': { make: 'BMW', country: 'USA', plant: 'Spartanburg, South Carolina' },
-  '5UJ': { make: 'BMW', country: 'USA', plant: 'Spartanburg, South Carolina' },
+  'WBA': {
+    make: 'BMW',
+    fullName: 'Bayerische Motoren Werke AG',
+    country: 'Germany',
+    division: 'BMW',
+    plant: 'Munich Plant',
+    plantCity: 'Munich',
+  },
+  'WBS': {
+    make: 'BMW',
+    fullName: 'BMW M GmbH',
+    country: 'Germany',
+    division: 'BMW M',
+    note: 'M Performance Division',
+  },
+  'WBY': {
+    make: 'BMW',
+    fullName: 'BMW i',
+    country: 'Germany',
+    division: 'BMW i',
+    note: 'Electric/Hybrid Division',
+    isElectric: true,
+  },
+  '5UX': {
+    make: 'BMW',
+    fullName: 'BMW Manufacturing Co.',
+    country: 'USA',
+    plant: 'Spartanburg, South Carolina',
+    plantCity: 'Spartanburg',
+    plantState: 'SC',
+    bodyType: 'SUV/Crossover',
+    established: 1994,
+  },
+  '5UJ': {
+    make: 'BMW',
+    fullName: 'BMW Manufacturing Co.',
+    country: 'USA',
+    plant: 'Spartanburg, South Carolina',
+    plantCity: 'Spartanburg',
+    plantState: 'SC',
+    established: 1994,
+  },
 
   // Volkswagen
-  'WVW': { make: 'Volkswagen', country: 'Germany', division: 'Volkswagen' },
-  'WVG': { make: 'Volkswagen', country: 'Germany', division: 'Volkswagen SUV' },
-  '3VW': { make: 'Volkswagen', country: 'Mexico', division: 'Volkswagen' },
-  '1VW': { make: 'Volkswagen', country: 'USA', plant: 'Chattanooga, Tennessee' },
+  'WVW': {
+    make: 'Volkswagen',
+    fullName: 'Volkswagen AG',
+    country: 'Germany',
+    division: 'Volkswagen',
+    plant: 'Wolfsburg Plant',
+    plantCity: 'Wolfsburg',
+  },
+  'WVG': {
+    make: 'Volkswagen',
+    fullName: 'Volkswagen AG',
+    country: 'Germany',
+    division: 'Volkswagen SUV',
+    bodyType: 'SUV/Crossover',
+  },
+  '3VW': {
+    make: 'Volkswagen',
+    fullName: 'Volkswagen de Mexico',
+    country: 'Mexico',
+    division: 'Volkswagen',
+    plant: 'Puebla Plant',
+    plantCity: 'Puebla',
+  },
+  '1VW': {
+    make: 'Volkswagen',
+    fullName: 'Volkswagen Group of America',
+    country: 'USA',
+    plant: 'Chattanooga, Tennessee',
+    plantCity: 'Chattanooga',
+    plantState: 'TN',
+    established: 2011,
+  },
 
   // Rivian
-  '7FC': { make: 'Rivian', country: 'USA', plant: 'Normal, Illinois' },
-  '7PD': { make: 'Rivian', country: 'USA', plant: 'Normal, Illinois' },
+  '7FC': {
+    make: 'Rivian',
+    fullName: 'Rivian Automotive, LLC',
+    country: 'USA',
+    plant: 'Normal, Illinois',
+    plantCity: 'Normal',
+    plantState: 'IL',
+    established: 2021,
+    isElectric: true,
+    note: 'Electric-only manufacturer',
+  },
+  '7PD': {
+    make: 'Rivian',
+    fullName: 'Rivian Automotive, LLC',
+    country: 'USA',
+    plant: 'Normal, Illinois',
+    plantCity: 'Normal',
+    plantState: 'IL',
+    established: 2021,
+    isElectric: true,
+    note: 'Electric-only manufacturer',
+  },
 
   // Polestar (via Volvo)
-  'YS3': { make: 'Polestar', country: 'Sweden', note: 'Via Volvo' },
-  'LP0': { make: 'Polestar', country: 'China', plant: 'Luqiao, Taizhou' },
+  'YS3': {
+    make: 'Polestar',
+    fullName: 'Polestar Performance AB',
+    country: 'Sweden',
+    note: 'Via Volvo heritage',
+    isElectric: true,
+  },
+  'LP0': {
+    make: 'Polestar',
+    fullName: 'Polestar Automotive',
+    country: 'China',
+    plant: 'Luqiao, Taizhou',
+    plantCity: 'Taizhou',
+    established: 2020,
+    isElectric: true,
+  },
 
   // Lucid
-  '7LU': { make: 'Lucid', country: 'USA', plant: 'Casa Grande, Arizona' },
+  '7LU': {
+    make: 'Lucid',
+    fullName: 'Lucid Motors, Inc.',
+    country: 'USA',
+    plant: 'Casa Grande, Arizona',
+    plantCity: 'Casa Grande',
+    plantState: 'AZ',
+    established: 2021,
+    isElectric: true,
+    note: 'AMP-1 Advanced Manufacturing Plant',
+  },
 
   // Mercedes-Benz
-  'WDD': { make: 'Mercedes-Benz', country: 'Germany', division: 'Mercedes-Benz' },
-  'WDC': { make: 'Mercedes-Benz', country: 'Germany', division: 'Mercedes-Benz SUV' },
-  'WDF': { make: 'Mercedes-Benz', country: 'Germany', division: 'Mercedes-Benz Vans' },
-  '4JG': { make: 'Mercedes-Benz', country: 'USA', plant: 'Tuscaloosa, Alabama' },
-  'W1K': { make: 'Mercedes-Benz', country: 'Germany', division: 'Mercedes-Benz EQ' },
-  'W1N': { make: 'Mercedes-Benz', country: 'Germany', division: 'Mercedes-Benz EQ SUV' },
+  'WDD': {
+    make: 'Mercedes-Benz',
+    fullName: 'Mercedes-Benz AG',
+    country: 'Germany',
+    division: 'Mercedes-Benz',
+    plant: 'Sindelfingen Plant',
+    plantCity: 'Sindelfingen',
+  },
+  'WDC': {
+    make: 'Mercedes-Benz',
+    fullName: 'Mercedes-Benz AG',
+    country: 'Germany',
+    division: 'Mercedes-Benz SUV',
+    bodyType: 'SUV/Crossover',
+  },
+  'WDF': {
+    make: 'Mercedes-Benz',
+    fullName: 'Mercedes-Benz AG',
+    country: 'Germany',
+    division: 'Mercedes-Benz Vans',
+    bodyType: 'Van',
+  },
+  '4JG': {
+    make: 'Mercedes-Benz',
+    fullName: 'Mercedes-Benz U.S. International',
+    country: 'USA',
+    plant: 'Tuscaloosa, Alabama',
+    plantCity: 'Tuscaloosa',
+    plantState: 'AL',
+    bodyType: 'SUV/Crossover',
+    established: 1997,
+  },
+  'W1K': {
+    make: 'Mercedes-Benz',
+    fullName: 'Mercedes-Benz EQ',
+    country: 'Germany',
+    division: 'Mercedes-Benz EQ',
+    isElectric: true,
+    note: 'EQ Electric Division',
+  },
+  'W1N': {
+    make: 'Mercedes-Benz',
+    fullName: 'Mercedes-Benz EQ',
+    country: 'Germany',
+    division: 'Mercedes-Benz EQ SUV',
+    bodyType: 'SUV/Crossover',
+    isElectric: true,
+    note: 'EQ Electric Division',
+  },
 
   // Audi
-  'WAU': { make: 'Audi', country: 'Germany', division: 'Audi' },
-  'WUA': { make: 'Audi', country: 'Germany', division: 'Audi Quattro' },
+  'WAU': {
+    make: 'Audi',
+    fullName: 'Audi AG',
+    country: 'Germany',
+    division: 'Audi',
+    plant: 'Ingolstadt Plant',
+    plantCity: 'Ingolstadt',
+  },
+  'WUA': {
+    make: 'Audi',
+    fullName: 'Audi AG - quattro GmbH',
+    country: 'Germany',
+    division: 'Audi Quattro',
+    driveType: 'AWD',
+    note: 'High-performance quattro variants',
+  },
 
   // Porsche
-  'WP0': { make: 'Porsche', country: 'Germany', division: 'Porsche' },
-  'WP1': { make: 'Porsche', country: 'Germany', division: 'Porsche SUV' },
+  'WP0': {
+    make: 'Porsche',
+    fullName: 'Dr. Ing. h.c. F. Porsche AG',
+    country: 'Germany',
+    division: 'Porsche',
+    plant: 'Zuffenhausen Plant',
+    plantCity: 'Stuttgart-Zuffenhausen',
+  },
+  'WP1': {
+    make: 'Porsche',
+    fullName: 'Dr. Ing. h.c. F. Porsche AG',
+    country: 'Germany',
+    division: 'Porsche SUV',
+    bodyType: 'SUV/Crossover',
+    plant: 'Leipzig Plant',
+    plantCity: 'Leipzig',
+  },
 
   // Volvo
-  'YV1': { make: 'Volvo', country: 'Sweden', division: 'Volvo' },
-  'YV4': { make: 'Volvo', country: 'Sweden', division: 'Volvo SUV' },
+  'YV1': {
+    make: 'Volvo',
+    fullName: 'Volvo Car Corporation',
+    country: 'Sweden',
+    division: 'Volvo',
+    plant: 'Torslanda Plant',
+    plantCity: 'Gothenburg',
+  },
+  'YV4': {
+    make: 'Volvo',
+    fullName: 'Volvo Car Corporation',
+    country: 'Sweden',
+    division: 'Volvo SUV',
+    bodyType: 'SUV/Crossover',
+  },
 
   // Toyota
-  'JTD': { make: 'Toyota', country: 'Japan', division: 'Toyota' },
-  'JTM': { make: 'Toyota', country: 'Japan', division: 'Toyota Multi-Purpose' },
-  '2T1': { make: 'Toyota', country: 'Canada', division: 'Toyota' },
-  '4T1': { make: 'Toyota', country: 'USA', division: 'Toyota' },
-  '5TD': { make: 'Toyota', country: 'USA', division: 'Toyota' },
+  'JTD': {
+    make: 'Toyota',
+    fullName: 'Toyota Motor Corporation',
+    country: 'Japan',
+    division: 'Toyota',
+  },
+  'JTM': {
+    make: 'Toyota',
+    fullName: 'Toyota Motor Corporation',
+    country: 'Japan',
+    division: 'Toyota Multi-Purpose',
+    bodyType: 'SUV/Crossover',
+  },
+  '2T1': {
+    make: 'Toyota',
+    fullName: 'Toyota Motor Manufacturing Canada',
+    country: 'Canada',
+    division: 'Toyota',
+    plant: 'Cambridge, Ontario',
+    plantCity: 'Cambridge',
+    plantState: 'ON',
+  },
+  '4T1': {
+    make: 'Toyota',
+    fullName: 'Toyota Motor Manufacturing USA',
+    country: 'USA',
+    division: 'Toyota',
+    plant: 'Georgetown, Kentucky',
+    plantCity: 'Georgetown',
+    plantState: 'KY',
+  },
+  '5TD': {
+    make: 'Toyota',
+    fullName: 'Toyota Motor Manufacturing USA',
+    country: 'USA',
+    division: 'Toyota',
+    plant: 'Princeton, Indiana',
+    plantCity: 'Princeton',
+    plantState: 'IN',
+  },
 
   // Honda
-  'JHM': { make: 'Honda', country: 'Japan', division: 'Honda' },
-  '1HG': { make: 'Honda', country: 'USA', division: 'Honda' },
-  '2HG': { make: 'Honda', country: 'Canada', division: 'Honda' },
-  '5FN': { make: 'Honda', country: 'USA', division: 'Honda' },
+  'JHM': {
+    make: 'Honda',
+    fullName: 'Honda Motor Co., Ltd.',
+    country: 'Japan',
+    division: 'Honda',
+    plant: 'Sayama Plant',
+    plantCity: 'Sayama',
+  },
+  '1HG': {
+    make: 'Honda',
+    fullName: 'Honda of America Manufacturing',
+    country: 'USA',
+    division: 'Honda',
+    plant: 'Marysville, Ohio',
+    plantCity: 'Marysville',
+    plantState: 'OH',
+    established: 1982,
+  },
+  '2HG': {
+    make: 'Honda',
+    fullName: 'Honda Canada Manufacturing',
+    country: 'Canada',
+    division: 'Honda',
+    plant: 'Alliston, Ontario',
+    plantCity: 'Alliston',
+    plantState: 'ON',
+  },
+  '5FN': {
+    make: 'Honda',
+    fullName: 'Honda Manufacturing of Alabama',
+    country: 'USA',
+    division: 'Honda',
+    plant: 'Lincoln, Alabama',
+    plantCity: 'Lincoln',
+    plantState: 'AL',
+  },
 
   // Genesis
-  'KMT': { make: 'Genesis', country: 'South Korea', division: 'Genesis' },
+  'KMT': {
+    make: 'Genesis',
+    fullName: 'Genesis Motor, LLC',
+    country: 'South Korea',
+    division: 'Genesis',
+    plant: 'Ulsan Plant',
+    plantCity: 'Ulsan',
+    note: 'Hyundai luxury division',
+  },
 
   // Cadillac
-  '1GY': { make: 'Cadillac', country: 'USA', division: 'Cadillac' },
+  '1GY': {
+    make: 'Cadillac',
+    fullName: 'General Motors - Cadillac',
+    country: 'USA',
+    division: 'Cadillac',
+    plant: 'Spring Hill, Tennessee',
+    plantCity: 'Spring Hill',
+    plantState: 'TN',
+  },
 };
 
 /**
@@ -168,14 +628,49 @@ const COUNTRY_CODES = {
  * Tesla uses position 4 to identify the model line
  */
 const TESLA_MODEL_CODES = {
-  '3': { model: 'Model 3' },           // Model 3
-  'Y': { model: 'Model Y' },           // Model Y
-  'S': { model: 'Model S' },           // Model S
-  'X': { model: 'Model X' },           // Model X
-  'E': { model: 'Model 3/Y', note: 'May be Model 3 or Model Y' }, // Early Model 3
-  'C': { model: 'Cybertruck' },        // Cybertruck
-  'R': { model: 'Roadster' },          // Roadster
-  'T': { model: 'Semi' },              // Tesla Semi
+  '3': { model: 'Model 3', bodyType: 'Sedan', generation: 'Highland (2024+) or Original' },
+  'Y': { model: 'Model Y', bodyType: 'Crossover SUV', generation: 'Juniper (2025+) or Original' },
+  'S': { model: 'Model S', bodyType: 'Sedan', generation: 'Plaid/Refresh (2021+) or Original' },
+  'X': { model: 'Model X', bodyType: 'SUV', generation: 'Plaid/Refresh (2021+) or Original' },
+  'E': { model: 'Model 3/Y', bodyType: 'Sedan/Crossover', note: 'Early production - may be Model 3 or Model Y' },
+  'C': { model: 'Cybertruck', bodyType: 'Pickup Truck', generation: 'First Generation (2023+)' },
+  'R': { model: 'Roadster', bodyType: 'Sports Car', generation: 'Next-Gen Roadster' },
+  'T': { model: 'Semi', bodyType: 'Semi Truck', generation: 'Production (2022+)' },
+};
+
+/**
+ * Tesla VDS position 5 - Drive unit/motor type
+ */
+const TESLA_DRIVE_CODES = {
+  'A': { driveType: 'Single Motor RWD', note: 'Standard Range' },
+  'D': { driveType: 'Dual Motor AWD', note: 'Long Range or Performance' },
+  'E': { driveType: 'Dual Motor AWD', note: 'Performance variant' },
+  'F': { driveType: 'Single Motor RWD', note: 'Standard Range Plus' },
+  'G': { driveType: 'Single Motor RWD', note: 'Standard Range (newer)' },
+  'K': { driveType: 'Dual Motor AWD', note: 'Performance (Plaid)' },
+  'L': { driveType: 'Dual Motor AWD', note: 'Long Range' },
+  'N': { driveType: 'Tri Motor AWD', note: 'Plaid (Model S/X)' },
+  'P': { driveType: 'Dual Motor AWD', note: 'Performance' },
+  'W': { driveType: 'Single Motor RWD', note: 'Base/Standard' },
+};
+
+/**
+ * Tesla battery pack codes (extracted from VDS)
+ */
+const TESLA_BATTERY_CODES = {
+  'A': { battery: 'Standard Range', capacity: '~50-54 kWh' },
+  'B': { battery: 'Standard Range Plus', capacity: '~54-57 kWh' },
+  'C': { battery: 'Mid Range', capacity: '~62 kWh' },
+  'E': { battery: 'Long Range', capacity: '~75-82 kWh' },
+  'F': { battery: 'Standard Range', capacity: '~50-54 kWh' },
+  'H': { battery: 'Long Range', capacity: '~100 kWh' },
+  'K': { battery: 'Performance', capacity: '~75-82 kWh' },
+  'L': { battery: 'Long Range', capacity: '~75-82 kWh' },
+  'N': { battery: 'Long Range Plus', capacity: '~82 kWh' },
+  'P': { battery: 'Performance', capacity: '~75-82 kWh' },
+  'R': { battery: 'Standard Range', capacity: '~50 kWh' },
+  'S': { battery: 'Plaid/Performance', capacity: '~100 kWh' },
+  'V': { battery: 'Standard Range', capacity: '~60 kWh' },
 };
 
 /**
@@ -183,9 +678,60 @@ const TESLA_MODEL_CODES = {
  * Position 4-5 helps identify Bolt EV vs Bolt EUV
  */
 const CHEVROLET_BOLT_CODES = {
-  'ZE': { model: 'Bolt EV', bodyStyle: 'Hatchback' },
-  'ZU': { model: 'Bolt EUV', bodyStyle: 'Crossover' },
-  'ZW': { model: 'Bolt EV', bodyStyle: 'Hatchback', note: '2022+ refresh' },
+  'ZE': {
+    model: 'Bolt EV',
+    bodyType: 'Hatchback',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 1 (2017-2021)',
+  },
+  'ZU': {
+    model: 'Bolt EUV',
+    bodyType: 'Crossover',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 1 (2022-2023)',
+    note: 'Extended Utility Vehicle - larger than Bolt EV',
+  },
+  'ZW': {
+    model: 'Bolt EV',
+    bodyType: 'Hatchback',
+    driveType: 'FWD',
+    battery: '65 kWh (usable 60 kWh)',
+    generation: 'Gen 1 Refresh (2022-2023)',
+    note: 'Refreshed exterior and interior',
+  },
+};
+
+/**
+ * Hyundai/Kia EV model codes
+ */
+const HYUNDAI_KIA_EV_CODES = {
+  // Hyundai Ioniq 5
+  'C3': { model: 'Ioniq 5', bodyType: 'Crossover', battery: '77.4 kWh', driveType: 'RWD or AWD' },
+  'C4': { model: 'Ioniq 5', bodyType: 'Crossover', battery: '58 kWh', driveType: 'RWD' },
+  // Hyundai Ioniq 6
+  'C5': { model: 'Ioniq 6', bodyType: 'Sedan', battery: '77.4 kWh', driveType: 'RWD or AWD' },
+  // Kia EV6
+  'E6': { model: 'EV6', bodyType: 'Crossover', battery: '77.4 kWh', driveType: 'RWD or AWD' },
+  'E4': { model: 'EV6', bodyType: 'Crossover', battery: '58 kWh', driveType: 'RWD' },
+  // Kia Niro EV
+  'E2': { model: 'Niro EV', bodyType: 'Crossover', battery: '64.8 kWh', driveType: 'FWD' },
+};
+
+/**
+ * Ford EV model codes
+ */
+const FORD_EV_CODES = {
+  // Mustang Mach-E
+  'AA': { model: 'Mustang Mach-E', bodyType: 'Crossover', variant: 'Select RWD', battery: '68 kWh', driveType: 'RWD' },
+  'AB': { model: 'Mustang Mach-E', bodyType: 'Crossover', variant: 'Select AWD', battery: '68 kWh', driveType: 'AWD' },
+  'AC': { model: 'Mustang Mach-E', bodyType: 'Crossover', variant: 'Premium', battery: '88 kWh', driveType: 'RWD or AWD' },
+  'AD': { model: 'Mustang Mach-E', bodyType: 'Crossover', variant: 'California Route 1', battery: '88 kWh', driveType: 'RWD' },
+  'AE': { model: 'Mustang Mach-E', bodyType: 'Crossover', variant: 'GT', battery: '88 kWh', driveType: 'AWD' },
+  // F-150 Lightning
+  'K8': { model: 'F-150 Lightning', bodyType: 'Pickup Truck', variant: 'Standard Range', battery: '98 kWh', driveType: 'AWD' },
+  'K9': { model: 'F-150 Lightning', bodyType: 'Pickup Truck', variant: 'Extended Range', battery: '131 kWh', driveType: 'AWD' },
 };
 
 /**
@@ -315,16 +861,44 @@ export function decodeVIN(vin) {
 
   // Manufacturer info
   let make = wmiInfo?.make || null;
+  let fullManufacturerName = wmiInfo?.fullName || null;
   let model = null;
   let modelDetails = null;
+  let bodyType = wmiInfo?.bodyType || null;
+  let driveType = wmiInfo?.driveType || null;
+  let batteryInfo = null;
+  let generation = null;
+  let variant = null;
+  let isElectric = wmiInfo?.isElectric || false;
 
   // Tesla-specific decoding
   if (make === 'Tesla') {
+    isElectric = true;
     const teslaModelCode = cleanVin[3];
     const teslaInfo = TESLA_MODEL_CODES[teslaModelCode];
     if (teslaInfo) {
       model = teslaInfo.model;
       modelDetails = teslaInfo.note || null;
+      bodyType = teslaInfo.bodyType || bodyType;
+      generation = teslaInfo.generation || null;
+    }
+
+    // Tesla drive type from position 5
+    const teslaDriveCode = cleanVin[4];
+    const teslaDriveInfo = TESLA_DRIVE_CODES[teslaDriveCode];
+    if (teslaDriveInfo) {
+      driveType = teslaDriveInfo.driveType;
+      variant = teslaDriveInfo.note;
+    }
+
+    // Tesla battery info from position 6 or 7
+    const teslaBatteryCode = cleanVin[5];
+    const teslaBatteryInfo = TESLA_BATTERY_CODES[teslaBatteryCode];
+    if (teslaBatteryInfo) {
+      batteryInfo = {
+        type: teslaBatteryInfo.battery,
+        capacity: teslaBatteryInfo.capacity,
+      };
     }
   }
 
@@ -333,17 +907,69 @@ export function decodeVIN(vin) {
     const boltCode = cleanVin.substring(4, 6);
     const boltInfo = CHEVROLET_BOLT_CODES[boltCode];
     if (boltInfo) {
+      isElectric = true;
       model = boltInfo.model;
-      modelDetails = boltInfo.bodyStyle;
+      modelDetails = boltInfo.note || null;
+      bodyType = boltInfo.bodyType || bodyType;
+      driveType = boltInfo.driveType || driveType;
+      generation = boltInfo.generation || null;
+      if (boltInfo.battery) {
+        batteryInfo = { capacity: boltInfo.battery };
+      }
+    }
+  }
+
+  // Hyundai/Kia EV decoding
+  if (make === 'Hyundai' || make === 'Kia') {
+    const evCode = cleanVin.substring(4, 6);
+    const evInfo = HYUNDAI_KIA_EV_CODES[evCode];
+    if (evInfo) {
+      isElectric = true;
+      model = evInfo.model;
+      bodyType = evInfo.bodyType || bodyType;
+      driveType = evInfo.driveType || driveType;
+      if (evInfo.battery) {
+        batteryInfo = { capacity: evInfo.battery };
+      }
+    }
+  }
+
+  // Ford EV decoding
+  if (make === 'Ford') {
+    const fordEvCode = cleanVin.substring(4, 6);
+    const fordEvInfo = FORD_EV_CODES[fordEvCode];
+    if (fordEvInfo) {
+      isElectric = true;
+      model = fordEvInfo.model;
+      bodyType = fordEvInfo.bodyType || bodyType;
+      driveType = fordEvInfo.driveType || driveType;
+      variant = fordEvInfo.variant || variant;
+      if (fordEvInfo.battery) {
+        batteryInfo = { capacity: fordEvInfo.battery };
+      }
     }
   }
 
   // Calculate confidence score
   let confidence = 0;
-  if (validation.valid) confidence += 40;
-  if (wmiInfo) confidence += 30;
-  if (year) confidence += 15;
+  if (validation.valid) confidence += 35;
+  if (wmiInfo) confidence += 25;
+  if (year) confidence += 10;
   if (model) confidence += 15;
+  if (driveType) confidence += 5;
+  if (batteryInfo) confidence += 5;
+  if (bodyType) confidence += 5;
+
+  // Format plant location nicely
+  let plantLocation = null;
+  if (wmiInfo?.plant) {
+    plantLocation = wmiInfo.plant;
+  } else if (wmiInfo?.plantCity) {
+    plantLocation = wmiInfo.plantCity;
+    if (wmiInfo.plantState) {
+      plantLocation += `, ${wmiInfo.plantState}`;
+    }
+  }
 
   return {
     isValid: validation.valid,
@@ -353,14 +979,27 @@ export function decodeVIN(vin) {
     // Decoded data
     year,
     make,
+    fullManufacturerName,
     model,
     modelDetails,
     country,
 
+    // Vehicle details
+    bodyType,
+    driveType,
+    batteryInfo,
+    generation,
+    variant,
+    isElectric,
+
     // Manufacturing info
     plantCountry: wmiInfo?.country || country,
-    plant: wmiInfo?.plant || null,
+    plant: plantLocation,
+    plantCity: wmiInfo?.plantCity || null,
+    plantState: wmiInfo?.plantState || null,
+    plantEstablished: wmiInfo?.established || null,
     division: wmiInfo?.division || null,
+    manufacturerNote: wmiInfo?.note || null,
 
     // VIN components
     rawData: {

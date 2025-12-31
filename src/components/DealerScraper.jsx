@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Globe, Loader2, Search, CheckCircle, AlertCircle, Plus, ExternalLink, Zap, RefreshCw, Info, Shield, ShieldAlert, MapPin, Calendar, Car } from 'lucide-react';
+import { Globe, Loader2, Search, CheckCircle, AlertCircle, Plus, ExternalLink, Zap, RefreshCw, Info, Shield, ShieldAlert, MapPin, Calendar, Car, ChevronDown, ChevronUp, X, Save, Eye, Edit3, Sparkles, FileJson, ArrowRight } from 'lucide-react';
 import { validateVIN, decodeVIN, getVINInsights } from '../utils/vinDecoder';
 
 /**
@@ -410,6 +410,51 @@ function formatForApp(data, locationInfo = {}) {
 }
 
 /**
+ * VIN Segment component for visual breakdown
+ */
+function VINSegment({ chars, label, color, position, tooltip }) {
+  const colorClasses = {
+    blue: 'bg-tally-blue/15 text-tally-blue border-tally-blue/30',
+    coral: 'bg-tally-coral/15 text-tally-coral border-tally-coral/30',
+    mint: 'bg-tally-mint/15 text-tally-mint border-tally-mint/30',
+    purple: 'bg-purple-100 text-purple-600 border-purple-200',
+    slate: 'bg-slate-100 text-slate-600 border-slate-200',
+    amber: 'bg-amber-100 text-amber-600 border-amber-200',
+  };
+
+  return (
+    <div className="flex flex-col items-center group relative">
+      <div className={`px-1.5 py-1 font-mono text-sm font-medium rounded border ${colorClasses[color]} tracking-wider`}>
+        {chars}
+      </div>
+      <div className="text-[10px] text-slate-400 mt-1 whitespace-nowrap">{label}</div>
+      <div className="text-[9px] text-slate-300">{position}</div>
+      {tooltip && (
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-charcoal text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+          {tooltip}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Detail row component for expanded info
+ */
+function DetailRow({ icon: Icon, label, value, highlight = false }) {
+  if (!value) return null;
+  return (
+    <div className={`flex items-start gap-2 py-1.5 ${highlight ? 'bg-tally-mint/5 -mx-2 px-2 rounded' : ''}`}>
+      <Icon size={14} className="text-slate-400 mt-0.5 flex-shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</div>
+        <div className="text-xs text-charcoal font-medium">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * VIN Display Component with decoded information
  */
 function VINDisplay({ vin }) {
@@ -424,140 +469,244 @@ function VINDisplay({ vin }) {
 
   const { isValid, summary, confidence, insights, warnings, decoded } = vinAnalysis;
 
+  // Confidence level label
+  const confidenceLabel = confidence >= 80 ? 'High' : confidence >= 50 ? 'Medium' : 'Low';
+  const confidenceColor = confidence >= 80 ? 'text-tally-mint' : confidence >= 50 ? 'text-amber-500' : 'text-red-400';
+
   return (
-    <div className="mt-4 p-4 bg-white rounded-lg border border-slate-200">
-      {/* VIN Header */}
-      <div className="flex items-center justify-between">
+    <div className="mt-4 bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      {/* Header Bar */}
+      <div className="px-4 py-3 bg-white border-b border-slate-100 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 uppercase tracking-wide">VIN</span>
           {isValid ? (
-            <Shield size={14} className="text-tally-mint" />
+            <div className="w-6 h-6 rounded-full bg-tally-mint/20 flex items-center justify-center">
+              <Shield size={14} className="text-tally-mint" />
+            </div>
           ) : (
-            <ShieldAlert size={14} className="text-amber-500" />
+            <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center">
+              <ShieldAlert size={14} className="text-amber-500" />
+            </div>
           )}
+          <div>
+            <span className="text-xs font-medium text-charcoal">VIN Decoded</span>
+            <span className={`ml-2 text-[10px] ${confidenceColor}`}>
+              {confidenceLabel} Confidence ({confidence}%)
+            </span>
+          </div>
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs text-tally-blue hover:text-tally-blue-dark flex items-center gap-1"
+          className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-tally-blue hover:bg-tally-blue/10 rounded-lg transition-colors"
         >
-          <Info size={12} />
-          {expanded ? 'Less' : 'More'}
+          {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {expanded ? 'Collapse' : 'Expand'}
         </button>
       </div>
 
-      {/* VIN Number */}
-      <div className="mt-2 font-mono text-sm text-charcoal tracking-wider select-all">
-        {vin}
-      </div>
+      {/* VIN Number with visual breakdown */}
+      <div className="px-4 py-4">
+        {/* VIN String */}
+        <div className="font-mono text-base text-charcoal tracking-[0.15em] select-all text-center mb-3 font-medium">
+          {vin}
+        </div>
 
-      {/* Quick Summary */}
-      <div className="mt-2 text-xs text-slate-500">
-        {summary}
+        {/* Quick Summary */}
+        <div className="text-sm text-center text-slate-600 mb-4">
+          {summary}
+          {decoded?.isElectric && (
+            <span className="inline-flex items-center gap-1 ml-2 px-2 py-0.5 bg-tally-blue/10 text-tally-blue text-xs rounded-full">
+              <Zap size={10} /> Electric
+            </span>
+          )}
+        </div>
+
+        {/* Visual VIN Breakdown - Always Visible */}
+        {decoded?.rawData && (
+          <div className="flex justify-center gap-1.5 flex-wrap">
+            <VINSegment
+              chars={decoded.rawData.wmi}
+              label="WMI"
+              position="1-3"
+              color="blue"
+              tooltip={`Manufacturer: ${decoded.fullManufacturerName || decoded.make || 'Unknown'}`}
+            />
+            <VINSegment
+              chars={decoded.rawData.vds}
+              label="VDS"
+              position="4-8"
+              color="coral"
+              tooltip={`Vehicle Attributes${decoded.model ? `: ${decoded.model}` : ''}`}
+            />
+            <VINSegment
+              chars={decoded.rawData.checkDigit}
+              label="Check"
+              position="9"
+              color={isValid ? 'slate' : 'amber'}
+              tooltip={isValid ? 'Check digit valid' : 'Check digit mismatch'}
+            />
+            <VINSegment
+              chars={decoded.rawData.yearCode}
+              label="Year"
+              position="10"
+              color="mint"
+              tooltip={decoded.year ? `Model Year: ${decoded.year}` : 'Year code'}
+            />
+            <VINSegment
+              chars={decoded.rawData.plantCode}
+              label="Plant"
+              position="11"
+              color="purple"
+              tooltip={decoded.plant || 'Assembly plant code'}
+            />
+            <VINSegment
+              chars={decoded.rawData.serialNumber}
+              label="Serial"
+              position="12-17"
+              color="slate"
+              tooltip="Production sequence number"
+            />
+          </div>
+        )}
       </div>
 
       {/* Expanded Details */}
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
-          {/* Confidence Score */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="px-4 pb-4 space-y-4">
+          {/* Confidence Bar */}
+          <div className="bg-slate-50 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-slate-500">Decode Confidence</span>
+              <span className={`text-xs font-bold ${confidenceColor}`}>{confidence}%</span>
+            </div>
+            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
-                  confidence >= 70 ? 'bg-tally-mint' :
-                  confidence >= 40 ? 'bg-amber-400' : 'bg-red-400'
+                  confidence >= 80 ? 'bg-tally-mint' :
+                  confidence >= 50 ? 'bg-amber-400' : 'bg-red-400'
                 }`}
                 style={{ width: `${confidence}%` }}
               />
             </div>
-            <span className="text-xs text-slate-400">{confidence}% confidence</span>
           </div>
 
-          {/* Decoded Info Grid */}
+          {/* Details Grid */}
           {decoded && (
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {decoded.year && (
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar size={12} className="text-slate-400" />
-                  <span>Year: {decoded.year}</span>
-                </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              {/* Vehicle Info Section */}
+              <div className="col-span-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wide mt-2 mb-1 border-b border-slate-100 pb-1">
+                Vehicle Information
+              </div>
+              <DetailRow
+                icon={Calendar}
+                label="Model Year"
+                value={decoded.year ? `${decoded.year}${decoded.generation ? ` - ${decoded.generation}` : ''}` : null}
+              />
+              <DetailRow
+                icon={Car}
+                label="Make / Model"
+                value={decoded.make ? `${decoded.make}${decoded.model ? ` ${decoded.model}` : ''}` : null}
+              />
+              <DetailRow
+                icon={Info}
+                label="Body Type"
+                value={decoded.bodyType}
+              />
+              <DetailRow
+                icon={Zap}
+                label="Drive Type"
+                value={decoded.driveType}
+                highlight={!!decoded.driveType}
+              />
+              {decoded.batteryInfo && (
+                <DetailRow
+                  icon={Zap}
+                  label="Battery"
+                  value={`${decoded.batteryInfo.type || 'Battery'}${decoded.batteryInfo.capacity ? ` (${decoded.batteryInfo.capacity})` : ''}`}
+                  highlight
+                />
               )}
-              {decoded.make && (
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Car size={12} className="text-slate-400" />
-                  <span>Make: {decoded.make}</span>
-                </div>
+              {decoded.variant && (
+                <DetailRow
+                  icon={Sparkles}
+                  label="Variant"
+                  value={decoded.variant}
+                />
               )}
-              {decoded.country && (
-                <div className="flex items-center gap-2 text-slate-600">
-                  <MapPin size={12} className="text-slate-400" />
-                  <span>Origin: {decoded.country}</span>
-                </div>
+
+              {/* Manufacturing Section */}
+              <div className="col-span-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wide mt-3 mb-1 border-b border-slate-100 pb-1">
+                Manufacturing
+              </div>
+              <DetailRow
+                icon={Info}
+                label="Manufacturer"
+                value={decoded.fullManufacturerName}
+              />
+              <DetailRow
+                icon={Globe}
+                label="Country of Origin"
+                value={decoded.country}
+              />
+              <DetailRow
+                icon={MapPin}
+                label="Assembly Plant"
+                value={decoded.plant}
+              />
+              {decoded.plantEstablished && (
+                <DetailRow
+                  icon={Calendar}
+                  label="Plant Established"
+                  value={decoded.plantEstablished}
+                />
               )}
-              {decoded.plant && (
-                <div className="flex items-center gap-2 text-slate-600 col-span-2">
-                  <MapPin size={12} className="text-slate-400" />
-                  <span>Plant: {decoded.plant}</span>
-                </div>
+              {decoded.manufacturerNote && (
+                <DetailRow
+                  icon={Info}
+                  label="Note"
+                  value={decoded.manufacturerNote}
+                />
               )}
             </div>
           )}
 
           {/* Insights */}
           {insights && insights.length > 0 && (
-            <div className="space-y-1">
-              {insights.map((insight, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs text-slate-500">
-                  <CheckCircle size={12} className="text-tally-mint mt-0.5 flex-shrink-0" />
-                  <span>{insight}</span>
-                </div>
-              ))}
+            <div className="bg-tally-mint/5 rounded-lg p-3">
+              <div className="text-[10px] font-semibold text-tally-mint uppercase tracking-wide mb-2">
+                Insights
+              </div>
+              <div className="space-y-1.5">
+                {insights.map((insight, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                    <CheckCircle size={12} className="text-tally-mint mt-0.5 flex-shrink-0" />
+                    <span>{insight}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Warnings */}
           {warnings && warnings.length > 0 && (
-            <div className="space-y-1">
-              {warnings.map((warning, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs text-amber-600">
-                  <AlertCircle size={12} className="mt-0.5 flex-shrink-0" />
-                  <span>{warning}</span>
-                </div>
-              ))}
+            <div className="bg-amber-50 rounded-lg p-3">
+              <div className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide mb-2">
+                Warnings
+              </div>
+              <div className="space-y-1.5">
+                {warnings.map((warning, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs text-amber-700">
+                    <AlertCircle size={12} className="mt-0.5 flex-shrink-0" />
+                    <span>{warning}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Raw VIN Components */}
+          {/* Raw Data Reference */}
           {decoded?.rawData && (
-            <div className="pt-2 border-t border-slate-100">
-              <div className="text-xs text-slate-400 mb-2">VIN Breakdown:</div>
-              <div className="flex gap-1 font-mono text-xs">
-                <span className="px-1.5 py-0.5 bg-tally-blue/10 text-tally-blue rounded" title="World Manufacturer ID">
-                  {decoded.rawData.wmi}
-                </span>
-                <span className="px-1.5 py-0.5 bg-tally-coral/10 text-tally-coral rounded" title="Vehicle Descriptor Section">
-                  {decoded.rawData.vds}
-                </span>
-                <span className="px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded" title="Check Digit">
-                  {decoded.rawData.checkDigit}
-                </span>
-                <span className="px-1.5 py-0.5 bg-tally-mint/10 text-tally-mint rounded" title="Year Code">
-                  {decoded.rawData.yearCode}
-                </span>
-                <span className="px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded" title="Plant Code">
-                  {decoded.rawData.plantCode}
-                </span>
-                <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded" title="Serial Number">
-                  {decoded.rawData.serialNumber}
-                </span>
-              </div>
-              <div className="flex gap-4 mt-1 text-xs text-slate-400">
-                <span>WMI</span>
-                <span>VDS</span>
-                <span>Chk</span>
-                <span>Yr</span>
-                <span>Plt</span>
-                <span>Serial</span>
-              </div>
+            <div className="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100">
+              <span className="font-mono">{decoded.rawData.vin}</span>
             </div>
           )}
         </div>
@@ -566,17 +715,72 @@ function VINDisplay({ vin }) {
   );
 }
 
+/**
+ * Field Status Badge Component
+ * Shows whether a field was auto-detected, manually entered, or is missing
+ */
+function FieldStatusBadge({ status, className = '' }) {
+  const badges = {
+    'auto': { label: 'Auto-detected', className: 'bg-tally-mint/20 text-tally-mint border-tally-mint/30' },
+    'manual': { label: 'Manual', className: 'bg-tally-blue/20 text-tally-blue border-tally-blue/30' },
+    'missing': { label: 'Missing', className: 'bg-amber-100 text-amber-600 border-amber-200' },
+    'edited': { label: 'Edited', className: 'bg-purple-100 text-purple-600 border-purple-200' },
+  };
+  const badge = badges[status] || badges.missing;
+
+  return (
+    <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded border ${badge.className} ${className}`}>
+      {badge.label}
+    </span>
+  );
+}
+
+/**
+ * Editable Field Component for Review Panel
+ */
+function ReviewField({ label, value, originalValue, onChange, type = 'text', placeholder = '', required = false }) {
+  const hasValue = value !== null && value !== undefined && value !== '';
+  const wasEdited = originalValue !== undefined && value !== originalValue;
+  const status = !hasValue ? 'missing' : wasEdited ? 'edited' : 'auto';
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-medium text-slate-600">
+          {label}
+          {required && <span className="text-red-400 ml-0.5">*</span>}
+        </label>
+        <FieldStatusBadge status={status} />
+      </div>
+      <input
+        type={type}
+        value={value ?? ''}
+        onChange={(e) => onChange(type === 'number' ? (e.target.value ? parseInt(e.target.value) : null) : e.target.value)}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 text-sm border rounded-lg transition-all focus:ring-2 focus:ring-tally-blue/20 focus:border-tally-blue outline-none ${
+          !hasValue && required ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200 bg-white'
+        }`}
+      />
+    </div>
+  );
+}
+
 export default function DealerScraper({ onAddCar, onClose, locationPresets = [] }) {
   const [url, setUrl] = useState('');
   const [jsonInput, setJsonInput] = useState('');
-  const [inputMode, setInputMode] = useState('url'); // 'url' or 'json'
-  const [status, setStatus] = useState('idle'); // idle, scraping, success, error
+  const [showAdvanced, setShowAdvanced] = useState(false); // For JSON paste mode
+  const [status, setStatus] = useState('idle'); // idle, scraping, reviewing, error
   const [scrapedData, setScrapedData] = useState(null);
+  const [originalScrapedData, setOriginalScrapedData] = useState(null); // Track original for edit detection
   const [error, setError] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [manualOverrides, setManualOverrides] = useState({});
 
   const [useBrowser, setUseBrowser] = useState(false);
+
+  // Current step in the flow
+  const currentStep = status === 'idle' || status === 'scraping' ? 'input' :
+                      status === 'reviewing' ? 'review' : 'input';
 
   const handleScrape = async () => {
     if (!url) return;
@@ -722,7 +926,8 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
       if (structuredData.color || structuredData.vehicleExteriorColor) parsed.color = structuredData.color || structuredData.vehicleExteriorColor;
 
       setScrapedData(parsed);
-      setStatus('success');
+      setOriginalScrapedData({ ...parsed }); // Save original for edit tracking
+      setStatus('reviewing');
 
     } catch (err) {
       console.error('Scrape error:', err);
@@ -775,7 +980,8 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
       };
 
       setScrapedData(parsed);
-      setStatus('success');
+      setOriginalScrapedData({ ...parsed }); // Save original for edit tracking
+      setStatus('reviewing');
     } catch (err) {
       setError('Invalid JSON format. Paste the output from browser console scraper.');
       setStatus('error');
@@ -787,11 +993,33 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     try {
       const parsed = parseScrapedData(rawData);
       setScrapedData(parsed);
-      setStatus('success');
+      setOriginalScrapedData({ ...parsed });
+      setStatus('reviewing');
     } catch (err) {
       setError(err.message || 'Failed to parse data');
       setStatus('error');
     }
+  };
+
+  // Go back to input step
+  const handleBackToInput = () => {
+    setStatus('idle');
+    setScrapedData(null);
+    setOriginalScrapedData(null);
+    setManualOverrides({});
+    setError('');
+  };
+
+  // Reset everything for a new entry
+  const handleReset = () => {
+    setUrl('');
+    setJsonInput('');
+    setScrapedData(null);
+    setOriginalScrapedData(null);
+    setStatus('idle');
+    setError('');
+    setManualOverrides({});
+    setSelectedLocation('');
   };
 
   const handleAddToList = (keepOpen = false) => {
@@ -810,16 +1038,34 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
 
     if (keepOpen) {
       // Reset for another entry
-      setUrl('');
-      setJsonInput('');
-      setScrapedData(null);
-      setStatus('idle');
-      setError('');
-      setManualOverrides({});
+      handleReset();
     } else {
       onClose();
     }
   };
+
+  // Get current value (with override if exists)
+  const getValue = (key) => manualOverrides[key] ?? scrapedData?.[key];
+  const getOriginal = (key) => originalScrapedData?.[key];
+
+  // Count auto-detected vs missing fields
+  const fieldStats = useMemo(() => {
+    if (!scrapedData) return { auto: 0, missing: 0, edited: 0 };
+    const requiredFields = ['year', 'make', 'model', 'price', 'mileage'];
+    let auto = 0, missing = 0, edited = 0;
+    requiredFields.forEach(field => {
+      const value = getValue(field);
+      const original = getOriginal(field);
+      if (!value && value !== 0) {
+        missing++;
+      } else if (original !== undefined && value !== original) {
+        edited++;
+      } else {
+        auto++;
+      }
+    });
+    return { auto, missing, edited };
+  }, [scrapedData, manualOverrides, originalScrapedData]);
 
   const updateOverride = (key, value) => {
     setManualOverrides(prev => ({ ...prev, [key]: value }));
@@ -830,295 +1076,384 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
       <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-tally-xl" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-100 p-4 flex items-center justify-between z-10">
-          <h2 className="font-display font-semibold text-charcoal flex items-center gap-2">
-            <Globe size={20} className="text-tally-blue" />
-            Scrape Dealer Listing
-          </h2>
+          <div className="flex items-center gap-3">
+            {status === 'reviewing' && (
+              <button
+                onClick={handleBackToInput}
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
+                title="Back to input"
+              >
+                <ChevronDown size={18} className="rotate-90" />
+              </button>
+            )}
+            <h2 className="font-display font-semibold text-charcoal flex items-center gap-2">
+              {status === 'reviewing' ? (
+                <>
+                  <Eye size={20} className="text-tally-blue" />
+                  Review Scraped Data
+                </>
+              ) : (
+                <>
+                  <Globe size={20} className="text-tally-blue" />
+                  Scrape Dealer Listing
+                </>
+              )}
+            </h2>
+          </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400">
-            <span className="text-xl">&times;</span>
+            <X size={18} />
           </button>
         </div>
 
         <div className="p-6">
-          {/* Mode Toggle */}
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => setInputMode('url')}
-              className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                inputMode === 'url'
-                  ? 'bg-tally-blue text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              URL Input
-            </button>
-            <button
-              onClick={() => setInputMode('json')}
-              className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                inputMode === 'json'
-                  ? 'bg-tally-blue text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              Paste JSON
-            </button>
-          </div>
-
-          {/* URL Input Mode */}
-          {inputMode === 'url' && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-600 mb-2">Listing URL</label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://dealer.com/inventory/vehicle/12345"
-                  className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all"
-                />
-                <button
-                  onClick={handleScrape}
-                  disabled={!url || status === 'scraping'}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
-                    !url || status === 'scraping'
-                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      : 'bg-tally-blue text-white hover:bg-tally-blue-dark'
-                  }`}
-                >
-                  {status === 'scraping' ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Search size={18} />
-                  )}
-                  Scrape
-                </button>
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-xs text-slate-400">
-                  Paste any dealer listing URL to extract vehicle data automatically
-                </p>
-                <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useBrowser}
-                    onChange={(e) => setUseBrowser(e.target.checked)}
-                    className="rounded border-slate-300"
-                  />
-                  <span>Use Browser</span>
-                  <span className="text-slate-400">(for protected sites)</span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* JSON Paste Mode */}
-          {inputMode === 'json' && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-600 mb-2">Paste Scraped JSON</label>
-              <textarea
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-                placeholder='{"year": 2024, "make": "Chevrolet", "model": "Bolt EV", "price": 25000, "mileage": 30000, ...}'
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all font-mono text-sm h-32 resize-none"
-              />
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-slate-400">
-                  Paste JSON from browser console scraper
-                </p>
-                <button
-                  onClick={handleJsonPaste}
-                  disabled={!jsonInput.trim() || status === 'scraping'}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all flex items-center gap-2 ${
-                    !jsonInput.trim() || status === 'scraping'
-                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      : 'bg-tally-blue text-white hover:bg-tally-blue-dark'
-                  }`}
-                >
-                  {status === 'scraping' ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Plus size={16} />
-                  )}
-                  Parse JSON
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Status Messages */}
-          {status === 'error' && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-              <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {status === 'success' && scrapedData && (
+          {/* ===== STEP 1: INPUT ===== */}
+          {currentStep === 'input' && (
             <>
-              {/* Confidence Indicator */}
-              <div className="mb-6 p-4 bg-tally-mint/10 border border-tally-mint/30 rounded-xl flex items-center gap-3">
-                <CheckCircle size={20} className="text-tally-mint" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-charcoal">
-                    Data extracted successfully
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Confidence: {scrapedData.confidence}% - {scrapedData.isElectric ? 'Electric Vehicle Detected' : 'Vehicle Detected'}
-                  </p>
+              {/* URL Input (Primary Method) */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-600 mb-2">Listing URL</label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://dealer.com/inventory/vehicle/12345"
+                    className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all"
+                  />
+                  <button
+                    onClick={handleScrape}
+                    disabled={!url || status === 'scraping'}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                      !url || status === 'scraping'
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        : 'bg-tally-blue text-white hover:bg-tally-blue-dark'
+                    }`}
+                  >
+                    {status === 'scraping' ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <Search size={18} />
+                    )}
+                    {status === 'scraping' ? 'Scraping...' : 'Scrape'}
+                  </button>
                 </div>
-                {scrapedData.isElectric && <Zap size={20} className="text-tally-blue" />}
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs text-slate-400">
+                    Paste any dealer listing URL to extract vehicle data automatically
+                  </p>
+                  <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useBrowser}
+                      onChange={(e) => setUseBrowser(e.target.checked)}
+                      className="rounded border-slate-300"
+                    />
+                    <span>Browser mode</span>
+                    <span className="text-slate-400">(for protected sites)</span>
+                  </label>
+                </div>
               </div>
 
-              {/* Extracted Data Preview */}
-              <div className="mb-6 bg-fog rounded-xl p-4">
-                <h3 className="text-sm font-semibold text-slate-500 mb-3">Extracted Data</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Year</label>
-                    <input
-                      type="number"
-                      value={manualOverrides.year ?? scrapedData.year ?? ''}
-                      onChange={(e) => updateOverride('year', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
+              {/* Error Message */}
+              {status === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                  <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm text-red-700 whitespace-pre-line">{error}</p>
                   </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Make</label>
-                    <input
-                      type="text"
-                      value={manualOverrides.make ?? scrapedData.make ?? ''}
-                      onChange={(e) => updateOverride('make', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Model</label>
-                    <input
-                      type="text"
-                      value={manualOverrides.model ?? scrapedData.model ?? ''}
-                      onChange={(e) => updateOverride('model', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Trim</label>
-                    <input
-                      type="text"
-                      value={manualOverrides.trim ?? scrapedData.trim ?? ''}
-                      onChange={(e) => updateOverride('trim', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Price ($)</label>
-                    <input
-                      type="number"
-                      value={manualOverrides.price ?? scrapedData.price ?? ''}
-                      onChange={(e) => updateOverride('price', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Mileage (km)</label>
-                    <input
-                      type="number"
-                      value={manualOverrides.mileage ?? scrapedData.mileage ?? ''}
-                      onChange={(e) => updateOverride('mileage', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Color</label>
-                    <input
-                      type="text"
-                      value={manualOverrides.color ?? scrapedData.color ?? ''}
-                      onChange={(e) => updateOverride('color', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-slate-400 mb-1">Dealer</label>
-                    <input
-                      type="text"
-                      value={manualOverrides.dealer ?? scrapedData.dealer ?? ''}
-                      onChange={(e) => updateOverride('dealer', e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
-                    />
-                  </div>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="text-red-400 hover:text-red-600"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
+              )}
 
-                {/* Location Selection */}
-                {locationPresets.length > 0 && (
-                  <div className="mt-4">
-                    <label className="block text-xs text-slate-400 mb-2">Location</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {locationPresets.slice(0, 8).map(loc => (
-                        <button
-                          key={loc.name}
-                          type="button"
-                          onClick={() => setSelectedLocation(loc.name)}
-                          className={`px-3 py-2 text-xs rounded-lg border transition-all ${
-                            selectedLocation === loc.name
-                              ? 'bg-tally-coral text-white border-tally-coral'
-                              : 'border-slate-200 hover:border-tally-coral'
-                          }`}
-                        >
-                          {loc.name}
-                        </button>
-                      ))}
+              {/* Advanced: JSON Paste (Collapsible) */}
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm text-slate-500 hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <FileJson size={16} />
+                    Advanced: Paste JSON Data
+                  </span>
+                  {showAdvanced ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+                {showAdvanced && (
+                  <div className="p-4 pt-0 border-t border-slate-100">
+                    <p className="text-xs text-slate-400 mb-3">
+                      If URL scraping fails, you can manually copy JSON data from browser dev tools.
+                    </p>
+                    <textarea
+                      value={jsonInput}
+                      onChange={(e) => setJsonInput(e.target.value)}
+                      placeholder='{"year": 2024, "make": "Chevrolet", "model": "Bolt EV", "price": 25000, "mileage": 30000, ...}'
+                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all font-mono text-xs h-24 resize-none"
+                    />
+                    <div className="flex justify-end mt-2">
+                      <button
+                        onClick={handleJsonPaste}
+                        disabled={!jsonInput.trim()}
+                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                          !jsonInput.trim()
+                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                            : 'bg-slate-800 text-white hover:bg-slate-700'
+                        }`}
+                      >
+                        <ArrowRight size={14} />
+                        Parse JSON
+                      </button>
                     </div>
                   </div>
                 )}
-
-                {/* VIN Display with Decoded Info */}
-                {scrapedData.vin && (
-                  <VINDisplay vin={scrapedData.vin} />
-                )}
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3">
-                <a
-                  href={scrapedData.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
-                >
-                  <ExternalLink size={16} /> View Original
-                </a>
-                <div className="flex-1" />
-                <button
-                  onClick={() => handleAddToList(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-tally-mint border border-tally-mint rounded-xl hover:bg-tally-mint/10 transition-all"
-                >
-                  <Plus size={16} /> Add & Continue
-                </button>
-                <button
-                  onClick={() => handleAddToList(false)}
-                  className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-tally-mint rounded-xl hover:bg-tally-mint/90 transition-all"
-                >
-                  <Plus size={16} /> Add & Close
-                </button>
-              </div>
+              {/* Instructions (shown in idle state) */}
+              {status === 'idle' && !showAdvanced && (
+                <div className="mt-6 bg-fog rounded-xl p-6 text-center">
+                  <Sparkles size={40} className="text-slate-300 mx-auto mb-4" />
+                  <h3 className="font-medium text-charcoal mb-2">Smart Vehicle Extraction</h3>
+                  <p className="text-sm text-slate-500 mb-3">
+                    Automatically extracts Year, Make, Model, Trim, Price, Mileage, VIN, and Color
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2 text-xs text-slate-400">
+                    <span className="px-2 py-1 bg-white rounded-full">AutoTrader</span>
+                    <span className="px-2 py-1 bg-white rounded-full">Kijiji</span>
+                    <span className="px-2 py-1 bg-white rounded-full">CarGurus</span>
+                    <span className="px-2 py-1 bg-white rounded-full">Clutch</span>
+                    <span className="px-2 py-1 bg-white rounded-full">CanadaDrives</span>
+                    <span className="px-2 py-1 bg-white rounded-full">+ Most Dealers</span>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
-          {/* Instructions */}
-          {status === 'idle' && (
-            <div className="bg-fog rounded-xl p-6 text-center">
-              <Globe size={48} className="text-slate-300 mx-auto mb-4" />
-              <h3 className="font-medium text-charcoal mb-2">Universal Dealer Scraper</h3>
-              <p className="text-sm text-slate-500 mb-4">
-                Paste any dealership listing URL and we'll automatically extract:<br />
-                Year, Make, Model, Trim, Price, Mileage, VIN, Color, and more.
-              </p>
-              <div className="text-xs text-slate-400">
-                Works with most dealer websites including AutoTrader, Kijiji, CarGurus,<br />
-                Clutch, CanadaDrives, and individual dealership sites.
+          {/* ===== STEP 2: REVIEW ===== */}
+          {currentStep === 'review' && scrapedData && (
+            <>
+              {/* Extraction Summary */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-tally-mint/10 to-tally-blue/10 border border-tally-mint/30 rounded-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      {scrapedData.isElectric ? (
+                        <Zap size={20} className="text-tally-blue" />
+                      ) : (
+                        <Car size={20} className="text-slate-400" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-charcoal">
+                        {getValue('year') || '????'} {getValue('make') || 'Unknown'} {getValue('model') || 'Vehicle'}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {scrapedData.isElectric ? 'Electric Vehicle' : 'Vehicle'} - Confidence: {scrapedData.confidence}%
+                      </p>
+                    </div>
+                  </div>
+                  {scrapedData.url && (
+                    <a
+                      href={scrapedData.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all"
+                    >
+                      <ExternalLink size={12} /> View Listing
+                    </a>
+                  )}
+                </div>
+
+                {/* Field Statistics */}
+                <div className="flex gap-4 mt-3 pt-3 border-t border-white/50">
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="w-2 h-2 rounded-full bg-tally-mint"></span>
+                    <span className="text-slate-600">{fieldStats.auto} auto-detected</span>
+                  </div>
+                  {fieldStats.edited > 0 && (
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                      <span className="text-slate-600">{fieldStats.edited} edited</span>
+                    </div>
+                  )}
+                  {fieldStats.missing > 0 && (
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                      <span className="text-amber-600">{fieldStats.missing} missing</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+
+              {/* Editable Fields */}
+              <div className="mb-6 space-y-4">
+                <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                  <Edit3 size={14} />
+                  Vehicle Details
+                  <span className="text-xs font-normal text-slate-400">- Edit any field before saving</span>
+                </h3>
+
+                {/* Core Vehicle Info */}
+                <div className="grid grid-cols-2 gap-3">
+                  <ReviewField
+                    label="Year"
+                    value={getValue('year')}
+                    originalValue={getOriginal('year')}
+                    onChange={(v) => updateOverride('year', v)}
+                    type="number"
+                    placeholder="2024"
+                    required
+                  />
+                  <ReviewField
+                    label="Make"
+                    value={getValue('make')}
+                    originalValue={getOriginal('make')}
+                    onChange={(v) => updateOverride('make', v)}
+                    placeholder="Chevrolet"
+                    required
+                  />
+                  <ReviewField
+                    label="Model"
+                    value={getValue('model')}
+                    originalValue={getOriginal('model')}
+                    onChange={(v) => updateOverride('model', v)}
+                    placeholder="Bolt EV"
+                    required
+                  />
+                  <ReviewField
+                    label="Trim"
+                    value={getValue('trim')}
+                    originalValue={getOriginal('trim')}
+                    onChange={(v) => updateOverride('trim', v)}
+                    placeholder="2LT"
+                  />
+                </div>
+
+                {/* Price & Mileage */}
+                <div className="grid grid-cols-2 gap-3">
+                  <ReviewField
+                    label="Price ($)"
+                    value={getValue('price')}
+                    originalValue={getOriginal('price')}
+                    onChange={(v) => updateOverride('price', v)}
+                    type="number"
+                    placeholder="25000"
+                    required
+                  />
+                  <ReviewField
+                    label="Odometer (km)"
+                    value={getValue('mileage')}
+                    originalValue={getOriginal('mileage')}
+                    onChange={(v) => updateOverride('mileage', v)}
+                    type="number"
+                    placeholder="30000"
+                    required
+                  />
+                </div>
+
+                {/* Additional Details */}
+                <div className="grid grid-cols-2 gap-3">
+                  <ReviewField
+                    label="Color"
+                    value={getValue('color')}
+                    originalValue={getOriginal('color')}
+                    onChange={(v) => updateOverride('color', v)}
+                    placeholder="White"
+                  />
+                  <ReviewField
+                    label="Dealer"
+                    value={getValue('dealer')}
+                    originalValue={getOriginal('dealer')}
+                    onChange={(v) => updateOverride('dealer', v)}
+                    placeholder="ABC Motors"
+                  />
+                </div>
+
+                {/* EV Specs (if applicable) */}
+                {scrapedData.isElectric && (
+                  <div className="grid grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600">Range (km)</label>
+                      <div className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                        {getValue('range') || 400}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600">Length (in)</label>
+                      <div className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                        {getValue('length') || 175}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600">Heat Pump</label>
+                      <div className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+                        {getValue('heatPump') ? 'Yes' : 'No'}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Location Selection */}
+              {locationPresets.length > 0 && (
+                <div className="mb-6">
+                  <label className="text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                    <MapPin size={14} />
+                    Location
+                  </label>
+                  <div className="grid grid-cols-4 gap-2 mt-2">
+                    {locationPresets.slice(0, 8).map(loc => (
+                      <button
+                        key={loc.name}
+                        type="button"
+                        onClick={() => setSelectedLocation(loc.name)}
+                        className={`px-3 py-2 text-xs rounded-lg border transition-all ${
+                          selectedLocation === loc.name
+                            ? 'bg-tally-coral text-white border-tally-coral'
+                            : 'border-slate-200 hover:border-tally-coral hover:bg-tally-coral/5'
+                        }`}
+                      >
+                        {loc.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* VIN Display */}
+              {scrapedData.vin && (
+                <VINDisplay vin={scrapedData.vin} />
+              )}
+
+              {/* Action Buttons */}
+              <div className="mt-6 pt-4 border-t border-slate-100 flex gap-3">
+                <button
+                  onClick={handleBackToInput}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
+                >
+                  <X size={16} />
+                  Cancel
+                </button>
+                <div className="flex-1" />
+                <button
+                  onClick={() => handleAddToList(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-tally-mint border border-tally-mint rounded-xl hover:bg-tally-mint/10 transition-all"
+                >
+                  <Plus size={16} />
+                  Save & Add Another
+                </button>
+                <button
+                  onClick={() => handleAddToList(false)}
+                  className="flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-tally-mint rounded-xl hover:bg-tally-mint/90 transition-all shadow-sm"
+                >
+                  <Save size={16} />
+                  Save to Listings
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

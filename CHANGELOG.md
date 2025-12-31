@@ -2,6 +2,33 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.9.0] - 2024-12-30
+
+### Changed
+- **DealerScraper UX Overhaul** - Improved the entire scrape-to-save user flow
+  - Replaced confusing "URL Input" / "Paste JSON" toggle with clear primary/advanced pattern
+  - JSON paste option now tucked in collapsible "Advanced" section for fallback use
+  - Added dedicated "Review Scraped Data" step between scrape and save
+  - Clear step progression: Input URL -> Scrape -> Review -> Save
+
+### Added
+- **Field Status Badges** - Visual indicators showing field detection status:
+  - "Auto-detected" (green) - fields extracted automatically from the page
+  - "Edited" (purple) - fields you've modified from the detected value
+  - "Missing" (amber) - required fields that need manual entry
+- **Field Statistics Summary** - Shows count of auto-detected, edited, and missing fields
+- **ReviewField Component** - Reusable editable field with status tracking
+- **Extraction Summary Card** - Shows vehicle preview with EV badge and confidence score
+- **Clear Action Buttons** - "Cancel", "Save & Add Another", and "Save to Listings"
+- Back navigation button in review mode header
+
+### Improved
+- Header dynamically changes between "Scrape Dealer Listing" and "Review Scraped Data"
+- Error messages now include dismiss button
+- Better visual hierarchy with grouped form sections (Core Info, Price/Mileage, Details)
+- EV specs (Range, Length, Heat Pump) shown as read-only when detected
+- Instructions panel updated with supported sites badges
+
 ## [0.8.0] - 2024-12-30
 
 ### Added
