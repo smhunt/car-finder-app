@@ -2,6 +2,38 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.10.0] - 2024-12-30
+
+### Added
+- **Enhanced VIN Decoder** with comprehensive vehicle details:
+  - Full manufacturer names (e.g., "Tesla, Inc.", "General Motors - Chevrolet")
+  - Assembly plant locations with city, state, and establishment year
+  - Body type detection (Sedan, Crossover, SUV, Truck, etc.)
+  - Drive type detection (RWD, AWD, FWD) from VDS codes
+  - Battery pack information with capacity estimates
+  - Model generation info (e.g., "Highland (2024+)" for Model 3)
+  - Variant identification (Long Range, Performance, Standard Range, etc.)
+- **Tesla-specific VDS decoding**:
+  - Drive unit codes (Single Motor RWD, Dual Motor AWD, Tri Motor Plaid)
+  - Battery pack codes with capacity estimates (~50-100 kWh)
+  - Model generation detection for all Tesla models
+- **Hyundai/Kia EV detection**: Ioniq 5, Ioniq 6, EV6, Niro EV with battery specs
+- **Ford EV detection**: Mustang Mach-E variants, F-150 Lightning with battery info
+- **Enhanced VINDisplay component** with card-like visual design:
+  - Color-coded VIN segment breakdown with position labels (1-3, 4-8, etc.)
+  - Hover tooltips showing segment meanings
+  - Two-column detail grid with section headers (Vehicle Info, Manufacturing)
+  - Confidence bar with percentage and level indicator (High/Medium/Low)
+  - Electric vehicle badge indicator
+  - Collapsible expanded view with full decoded details
+  - Manufacturing section showing plant details and establishment year
+
+### Changed
+- VIN confidence scoring now accounts for drive type, battery info, and body type
+- VIN segments now show position ranges for better understanding
+- Improved visual hierarchy in VIN display with gradient backgrounds
+- Insights now include drive configuration, battery pack, and generation info
+
 ## [0.9.0] - 2024-12-30
 
 ### Changed
