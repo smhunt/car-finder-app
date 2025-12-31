@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to EV Value Scorer will be documented in this file.
+All notable changes to Car Scorer will be documented in this file.
 
 ## [0.10.0] - 2024-12-30
 

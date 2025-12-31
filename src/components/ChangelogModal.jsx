@@ -1,8 +1,20 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.9.0';
+export const APP_VERSION = '0.10.0';
 
 export const CHANGELOG = [
+  {
+    version: '0.10.0',
+    date: '2024-12-30',
+    changes: [
+      'Enhanced VIN decoder with drive type, battery info, and plant details',
+      'Tesla VDS decoding (Single/Dual/Tri Motor, battery capacity)',
+      'Hyundai/Kia/Ford EV model detection with battery specs',
+      'VINDisplay redesign with color-coded segments and tooltips',
+      'Confidence bar with High/Medium/Low indicator',
+      'Two-column detail grid with manufacturing info',
+    ],
+  },
   {
     version: '0.9.0',
     date: '2024-12-30',
