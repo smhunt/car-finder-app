@@ -262,19 +262,54 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     setScrapedData(null);
 
     try {
-      // This would normally use the browser MCP, but for now we'll show how it would work
-      // In practice, this component is designed to receive data from an external scraper
+      // Open URL in new tab and extract data via fetch + DOM parsing
+      // For now, parse from URL patterns for supported sites
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.toLowerCase();
 
-      // Simulate scraping delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // AutoTrader URL pattern: /a/make/model/location/province/id/
+      if (hostname.includes('autotrader.ca')) {
+        const pathParts = urlObj.pathname.split('/').filter(Boolean);
+        if (pathParts[0] === 'a' && pathParts.length >= 5) {
+          const make = pathParts[1].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+          const model = pathParts[2].toUpperCase();
+          const location = pathParts[3].charAt(0).toUpperCase() + pathParts[3].slice(1);
 
-      // For demo purposes, show what the expected input format is
-      setError('To scrape a dealer page, use the browser automation to visit the URL and extract the data. ' +
-               'The scraper expects: pageText, pageTitle, pageUrl, priceFromDom, mileageFromDom, images.');
+          setScrapedData({
+            year: null, // Need page content
+            make,
+            model,
+            trim: null,
+            price: null, // Need page content
+            mileage: null, // Need page content
+            vin: null,
+            color: null,
+            dealer: null,
+            url,
+            range: EV_SPECS[make]?.[model]?.range || 400,
+            length: EV_SPECS[make]?.[model]?.length || 175,
+            heatPump: EV_SPECS[make]?.[model]?.heatPump ?? true,
+            isElectric: true,
+            confidence: 50,
+          });
+          setStatus('success');
+          setError('Partial data extracted from URL. Visit the page in browser to get full details (price, mileage, year).');
+          return;
+        }
+      }
+
+      // For other sites, show instructions
+      setError(
+        'To scrape this page:\n' +
+        '1. Open the URL in your browser\n' +
+        '2. Use browser dev tools or the scraper bookmarklet\n' +
+        '3. Copy the extracted JSON data here\n\n' +
+        'Supported sites: AutoTrader.ca, Kijiji, CarGurus, Clutch, CanadaDrives'
+      );
       setStatus('error');
 
     } catch (err) {
-      setError(err.message || 'Failed to scrape page');
+      setError(err.message || 'Failed to parse URL');
       setStatus('error');
     }
   };
