@@ -674,14 +674,27 @@ const CarCard = ({ car, rank, score, isExpanded, onToggle, onDelete, onStar, onE
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-semibold text-slate-500 mb-3">Vehicle Details</h4>
-                <div className="grid gap-2 text-sm">
-                  <div><span className="text-slate-400">Dealer:</span> <span className="text-charcoal">{car.dealer}</span></div>
-                  <div><span className="text-slate-400">Color:</span> <span className="text-charcoal">{car.color}</span></div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <div><span className="text-slate-400">Dealer:</span> <span className="text-charcoal font-medium">{car.dealer || '-'}</span></div>
+                  <div><span className="text-slate-400">Location:</span> <span className="text-charcoal">{car.location || '-'} {car.distance === 1 ? '(Local)' : car.distance ? `(~${car.distance * 15} min)` : ''}</span></div>
+                  <div><span className="text-slate-400">Color:</span> <span className="text-charcoal">{car.color || '-'}</span></div>
+                  <div><span className="text-slate-400">Interior:</span> <span className="text-charcoal">{car.interiorColor || '-'}</span></div>
+                  <div><span className="text-slate-400">Drivetrain:</span> <span className="text-charcoal">{car.drivetrain || '-'}</span></div>
+                  <div><span className="text-slate-400">Transmission:</span> <span className="text-charcoal">{car.transmission || 'Auto'}</span></div>
+                  <div><span className="text-slate-400">Body Type:</span> <span className="text-charcoal">{car.bodyType || '-'}</span></div>
                   <div><span className="text-slate-400">Length:</span> <span className="text-charcoal">{car.length}"</span></div>
-                  <div><span className="text-slate-400">Heat Pump:</span> <span className={car.heatPump ? 'text-tally-mint' : 'text-slate-400'}>{car.heatPump ? 'Yes' : 'No'}</span></div>
+                  <div><span className="text-slate-400">Range:</span> <span className="text-tally-blue font-medium">{car.range} km</span></div>
+                  <div><span className="text-slate-400">Heat Pump:</span> <span className={car.heatPump ? 'text-tally-mint font-medium' : 'text-slate-400'}>{car.heatPump ? 'Yes' : 'No'}</span></div>
                   <div><span className="text-slate-400">Remote Start:</span> <span className="text-charcoal">{car.remoteStart}</span></div>
-                  <div><span className="text-slate-400">Damage:</span> <span className={car.damage > 0 ? 'text-tally-coral' : 'text-tally-mint'}>{car.damage > 0 ? `$${car.damage.toLocaleString()}` : 'None'}</span></div>
+                  <div><span className="text-slate-400">Damage:</span> <span className={car.damage > 0 ? 'text-tally-coral font-medium' : 'text-tally-mint'}>{car.damage > 0 ? `$${car.damage.toLocaleString()}` : 'None'}</span></div>
                 </div>
+                {/* VIN & Stock Number */}
+                {(car.vin || car.stockNumber) && (
+                  <div className="mt-3 pt-3 border-t border-slate-100 grid gap-1 text-sm">
+                    {car.vin && <div><span className="text-slate-400">VIN:</span> <span className="font-mono text-xs text-charcoal">{car.vin}</span></div>}
+                    {car.stockNumber && <div><span className="text-slate-400">Stock #:</span> <span className="font-mono text-xs text-charcoal">{car.stockNumber}</span></div>}
+                  </div>
+                )}
               </div>
 
               {/* Price History Section */}
