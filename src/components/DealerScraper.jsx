@@ -248,6 +248,8 @@ function formatForApp(data, locationInfo = {}) {
 
 export default function DealerScraper({ onAddCar, onClose, locationPresets = [] }) {
   const [url, setUrl] = useState('');
+  const [jsonInput, setJsonInput] = useState('');
+  const [inputMode, setInputMode] = useState('url'); // 'url' or 'json'
   const [status, setStatus] = useState('idle'); // idle, scraping, success, error
   const [scrapedData, setScrapedData] = useState(null);
   const [error, setError] = useState('');
@@ -314,6 +316,46 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     }
   };
 
+  // Handle JSON paste input
+  const handleJsonPaste = () => {
+    if (!jsonInput.trim()) return;
+
+    setStatus('scraping');
+    setError('');
+
+    try {
+      const data = JSON.parse(jsonInput);
+
+      // Handle different JSON formats
+      const extracted = data.extracted || data.carFinderFormat || data;
+
+      // Parse the data
+      const parsed = {
+        year: extracted.year || null,
+        make: extracted.make || null,
+        model: extracted.model || null,
+        trim: extracted.trim || null,
+        price: extracted.price || extracted.odo || null,
+        mileage: extracted.mileage || extracted.odo || null,
+        vin: extracted.vin || null,
+        color: extracted.color || extracted.exteriorColor || null,
+        dealer: extracted.dealer || null,
+        url: extracted.url || extracted.sourceUrl || url,
+        range: extracted.range || EV_SPECS[extracted.make]?.[extracted.model]?.range || 400,
+        length: extracted.length || EV_SPECS[extracted.make]?.[extracted.model]?.length || 175,
+        heatPump: extracted.heatPump ?? EV_SPECS[extracted.make]?.[extracted.model]?.heatPump ?? true,
+        isElectric: extracted.isElectric ?? true,
+        confidence: extracted.confidence || 100,
+      };
+
+      setScrapedData(parsed);
+      setStatus('success');
+    } catch (err) {
+      setError('Invalid JSON format. Paste the output from browser console scraper.');
+      setStatus('error');
+    }
+  };
+
   // This function is called when data is received from external scraper
   const processScrapedData = (rawData) => {
     try {
@@ -326,7 +368,7 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     }
   };
 
-  const handleAddToList = () => {
+  const handleAddToList = (keepOpen = false) => {
     if (!scrapedData) return;
 
     const locationInfo = locationPresets.find(l => l.name === selectedLocation) || {};
@@ -339,7 +381,18 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     });
 
     onAddCar(carData);
-    onClose();
+
+    if (keepOpen) {
+      // Reset for another entry
+      setUrl('');
+      setJsonInput('');
+      setScrapedData(null);
+      setStatus('idle');
+      setError('');
+      setManualOverrides({});
+    } else {
+      onClose();
+    }
   };
 
   const updateOverride = (key, value) => {
@@ -361,38 +414,98 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
         </div>
 
         <div className="p-6">
-          {/* URL Input */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-600 mb-2">Listing URL</label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://dealer.com/inventory/vehicle/12345"
-                className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all"
-              />
-              <button
-                onClick={handleScrape}
-                disabled={!url || status === 'scraping'}
-                className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
-                  !url || status === 'scraping'
-                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    : 'bg-tally-blue text-white hover:bg-tally-blue-dark'
-                }`}
-              >
-                {status === 'scraping' ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  <Search size={18} />
-                )}
-                Scrape
-              </button>
-            </div>
-            <p className="text-xs text-slate-400 mt-2">
-              Paste any dealer listing URL to extract vehicle data automatically
-            </p>
+          {/* Mode Toggle */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setInputMode('url')}
+              className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                inputMode === 'url'
+                  ? 'bg-tally-blue text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              URL Input
+            </button>
+            <button
+              onClick={() => setInputMode('json')}
+              className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                inputMode === 'json'
+                  ? 'bg-tally-blue text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              Paste JSON
+            </button>
           </div>
+
+          {/* URL Input Mode */}
+          {inputMode === 'url' && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-600 mb-2">Listing URL</label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://dealer.com/inventory/vehicle/12345"
+                  className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all"
+                />
+                <button
+                  onClick={handleScrape}
+                  disabled={!url || status === 'scraping'}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${
+                    !url || status === 'scraping'
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : 'bg-tally-blue text-white hover:bg-tally-blue-dark'
+                  }`}
+                >
+                  {status === 'scraping' ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Search size={18} />
+                  )}
+                  Scrape
+                </button>
+              </div>
+              <p className="text-xs text-slate-400 mt-2">
+                Paste any dealer listing URL to extract vehicle data automatically
+              </p>
+            </div>
+          )}
+
+          {/* JSON Paste Mode */}
+          {inputMode === 'json' && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-600 mb-2">Paste Scraped JSON</label>
+              <textarea
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder='{"year": 2024, "make": "Chevrolet", "model": "Bolt EV", "price": 25000, "mileage": 30000, ...}'
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-tally-blue focus:border-tally-blue outline-none transition-all font-mono text-sm h-32 resize-none"
+              />
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xs text-slate-400">
+                  Paste JSON from browser console scraper
+                </p>
+                <button
+                  onClick={handleJsonPaste}
+                  disabled={!jsonInput.trim() || status === 'scraping'}
+                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all flex items-center gap-2 ${
+                    !jsonInput.trim() || status === 'scraping'
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : 'bg-tally-blue text-white hover:bg-tally-blue-dark'
+                  }`}
+                >
+                  {status === 'scraping' ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Plus size={16} />
+                  )}
+                  Parse JSON
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Status Messages */}
           {status === 'error' && (
@@ -542,10 +655,16 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
                 </a>
                 <div className="flex-1" />
                 <button
-                  onClick={handleAddToList}
+                  onClick={() => handleAddToList(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-tally-mint border border-tally-mint rounded-xl hover:bg-tally-mint/10 transition-all"
+                >
+                  <Plus size={16} /> Add & Continue
+                </button>
+                <button
+                  onClick={() => handleAddToList(false)}
                   className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-tally-mint rounded-xl hover:bg-tally-mint/90 transition-all"
                 >
-                  <Plus size={16} /> Add to List
+                  <Plus size={16} /> Add & Close
                 </button>
               </div>
             </>
