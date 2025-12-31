@@ -2,6 +2,15 @@
 
 All notable changes to EV Value Scorer will be documented in this file.
 
+## [0.7.1] - 2024-12-30
+
+### Added
+- Proxy server for server-side page fetching (bypasses CORS)
+- Direct URL scraping - just paste URL and click Scrape
+- JSON-LD structured data extraction from pages
+- DOM-based price/mileage extraction with smart selectors
+- Enhanced CarCard expanded view with 12+ vehicle detail fields
+
 ## [0.7.0] - 2024-12-30
 
 ### Added

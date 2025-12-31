@@ -1,8 +1,18 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.7.0';
+export const APP_VERSION = '0.7.1';
 
 export const CHANGELOG = [
+  {
+    version: '0.7.1',
+    date: '2024-12-30',
+    changes: [
+      'Added proxy server for direct URL scraping (no more manual copy-paste)',
+      'JSON-LD structured data extraction from dealer pages',
+      'DOM-based price/mileage extraction with smart selectors',
+      'Enhanced CarCard with 12+ vehicle detail fields',
+    ],
+  },
   {
     version: '0.7.0',
     date: '2024-12-30',

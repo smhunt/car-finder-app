@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { Globe, Loader2, Search, CheckCircle, AlertCircle, Plus, ExternalLink, Zap } from 'lucide-react';
+import { Globe, Loader2, Search, CheckCircle, AlertCircle, Plus, ExternalLink, Zap, RefreshCw } from 'lucide-react';
 
 /**
  * Dealer Scraper Component
  *
  * Provides a UI for scraping vehicle listings from any dealership website.
- * Uses intelligent pattern matching to extract vehicle data.
+ * Uses a proxy server to fetch pages and intelligent pattern matching to extract vehicle data.
  */
+
+// Proxy API endpoint
+const PROXY_API = import.meta.env.DEV
+  ? 'http://localhost:3090'
+  : 'https://api.carfinder.dev.ecoworks.ca';
 
 // Inline scraper logic (browser-compatible version)
 const PATTERNS = {
@@ -264,54 +269,125 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
     setScrapedData(null);
 
     try {
-      // Open URL in new tab and extract data via fetch + DOM parsing
-      // For now, parse from URL patterns for supported sites
-      const urlObj = new URL(url);
-      const hostname = urlObj.hostname.toLowerCase();
+      // Call proxy to fetch the page HTML
+      const response = await fetch(`${PROXY_API}/api/scrape`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
 
-      // AutoTrader URL pattern: /a/make/model/location/province/id/
-      if (hostname.includes('autotrader.ca')) {
-        const pathParts = urlObj.pathname.split('/').filter(Boolean);
-        if (pathParts[0] === 'a' && pathParts.length >= 5) {
-          const make = pathParts[1].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
-          const model = pathParts[2].toUpperCase();
-          const location = pathParts[3].charAt(0).toUpperCase() + pathParts[3].slice(1);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${response.status}`);
+      }
 
-          setScrapedData({
-            year: null, // Need page content
-            make,
-            model,
-            trim: null,
-            price: null, // Need page content
-            mileage: null, // Need page content
-            vin: null,
-            color: null,
-            dealer: null,
-            url,
-            range: EV_SPECS[make]?.[model]?.range || 400,
-            length: EV_SPECS[make]?.[model]?.length || 175,
-            heatPump: EV_SPECS[make]?.[model]?.heatPump ?? true,
-            isElectric: true,
-            confidence: 50,
-          });
-          setStatus('success');
-          setError('Partial data extracted from URL. Visit the page in browser to get full details (price, mileage, year).');
-          return;
+      const { html, url: finalUrl } = await response.json();
+
+      // Parse HTML in browser
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Extract text content
+      const pageTitle = doc.title || '';
+      const pageText = doc.body?.innerText || '';
+      const fullText = `${pageTitle} ${pageText}`;
+
+      // Extract structured data (JSON-LD)
+      let structuredData = {};
+      const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+      jsonLdScripts.forEach(script => {
+        try {
+          const data = JSON.parse(script.textContent);
+          if (data['@type'] === 'Vehicle' || data['@type'] === 'Car' || data['@type'] === 'Product') {
+            structuredData = { ...structuredData, ...data };
+          }
+        } catch {}
+      });
+
+      // Try to extract price from DOM
+      let priceFromDom = null;
+      const priceSelectors = [
+        '[data-price]', '.price', '.vehicle-price', '.listing-price',
+        '[class*="price"]', '.sale-price', '.asking-price'
+      ];
+      for (const sel of priceSelectors) {
+        const el = doc.querySelector(sel);
+        if (el) {
+          const text = el.getAttribute('data-price') || el.textContent;
+          const match = text?.match(/\$?([\d,]+)/);
+          if (match) {
+            priceFromDom = match[1];
+            break;
+          }
         }
       }
 
-      // For other sites, show instructions
-      setError(
-        'To scrape this page:\n' +
-        '1. Open the URL in your browser\n' +
-        '2. Use browser dev tools or the scraper bookmarklet\n' +
-        '3. Copy the extracted JSON data here\n\n' +
-        'Supported sites: AutoTrader.ca, Kijiji, CarGurus, Clutch, CanadaDrives'
-      );
-      setStatus('error');
+      // Try to extract mileage from DOM
+      let mileageFromDom = null;
+      const mileageSelectors = [
+        '[data-mileage]', '[data-odometer]', '.mileage', '.odometer',
+        '[class*="mileage"]', '[class*="odometer"]', '[class*="kilometer"]'
+      ];
+      for (const sel of mileageSelectors) {
+        const el = doc.querySelector(sel);
+        if (el) {
+          const text = el.getAttribute('data-mileage') || el.getAttribute('data-odometer') || el.textContent;
+          const match = text?.match(/([\d,]+)\s*(?:km|mi)/i);
+          if (match) {
+            mileageFromDom = match[1];
+            break;
+          }
+        }
+      }
+
+      // Extract dealer name from DOM
+      let dealerName = null;
+      const dealerSelectors = [
+        '[class*="dealer-name"]', '[class*="dealership"]', '.dealer',
+        'h1', 'header h1', '[itemtype*="LocalBusiness"] [itemprop="name"]'
+      ];
+      for (const sel of dealerSelectors) {
+        const el = doc.querySelector(sel);
+        if (el?.textContent?.length < 100) {
+          dealerName = el.textContent.trim();
+          break;
+        }
+      }
+
+      // Parse the data using our pattern matching
+      const parsed = parseScrapedData({
+        pageText,
+        pageTitle,
+        pageUrl: finalUrl || url,
+        priceFromDom,
+        mileageFromDom,
+        dealerName,
+        structuredData,
+      });
+
+      // Merge with structured data if available
+      if (structuredData.offers?.price) parsed.price = parseInt(structuredData.offers.price);
+      if (structuredData.mileageFromOdometer?.value) parsed.mileage = parseInt(structuredData.mileageFromOdometer.value);
+      if (structuredData.vehicleIdentificationNumber) parsed.vin = structuredData.vehicleIdentificationNumber;
+      if (structuredData.color || structuredData.vehicleExteriorColor) parsed.color = structuredData.color || structuredData.vehicleExteriorColor;
+
+      setScrapedData(parsed);
+      setStatus('success');
 
     } catch (err) {
-      setError(err.message || 'Failed to parse URL');
+      console.error('Scrape error:', err);
+
+      // Check if proxy is running
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        setError(
+          'Could not connect to scraper proxy.\n\n' +
+          'Make sure the proxy server is running:\n' +
+          '  npm run proxy\n\n' +
+          'Or use "Paste JSON" mode with manual browser scraping.'
+        );
+      } else {
+        setError(err.message || 'Failed to scrape URL');
+      }
       setStatus('error');
     }
   };
