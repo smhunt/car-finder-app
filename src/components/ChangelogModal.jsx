@@ -181,13 +181,13 @@ export const ROADMAP = [
       { title: 'Comparison View', description: 'Side-by-side comparison of 2-3 selected vehicles', priority: 'high' },
       { title: 'Listing URL Links', description: 'Save the dealer listing URL with each vehicle for quick access', priority: 'high' },
       { title: 'Import/Export Data', description: 'Export your listings to JSON and import them on another device', priority: 'high' },
+      { title: 'Auto-Scrape Browser Extension', description: 'One-click scraping directly from dealer pages', priority: 'high' },
     ],
   },
   {
     category: 'Planned',
     icon: '📋',
     items: [
-      { title: 'Auto-Scrape Browser Extension', description: 'One-click scraping directly from dealer pages', priority: 'medium' },
       { title: 'Custom Criteria', description: 'Add your own scoring criteria beyond the default 10', priority: 'low' },
     ],
   },
