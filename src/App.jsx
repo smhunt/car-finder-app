@@ -1205,6 +1205,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('saved');
   const [editCar, setEditCar] = useState(null);
+  const [sortBy, setSortBy] = useState('score'); // score, price, mileage, range, year
   const saveTimeoutRef = useRef(null);
   const lastSavedRef = useRef(null);
 
@@ -1254,10 +1255,19 @@ export default function App() {
     return cars
       .map(car => ({ ...car, score: calculateValueScore(car, cars, weights), breakdown: getScoreBreakdown(car, cars, weights) }))
       .sort((a, b) => {
+        // Starred cars always come first
         if (a.starred !== b.starred) return b.starred ? 1 : -1;
-        return b.score - a.score;
+        // Then sort by selected criteria
+        switch (sortBy) {
+          case 'price': return a.price - b.price; // Low to high
+          case 'mileage': return a.odo - b.odo; // Low to high
+          case 'range': return b.range - a.range; // High to low
+          case 'year': return b.year - a.year; // Newest first
+          case 'score':
+          default: return b.score - a.score; // Highest first
+        }
       });
-  }, [cars, weights]);
+  }, [cars, weights, sortBy]);
   const existingDealers = useMemo(() => [...new Set(cars.map(c => c.dealer).filter(Boolean))], [cars]);
 
   const handleUpdateCar = (updatedCar) => {
@@ -1502,7 +1512,20 @@ export default function App() {
               <h2 className="font-display font-semibold text-charcoal flex items-center gap-2">
                 <TrendingUp size={18} /> Ranked Listings
               </h2>
-              <span className="text-sm text-slate-400">{cars.length} vehicles</span>
+              <div className="flex items-center gap-3">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="text-sm border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-tally-blue cursor-pointer"
+                >
+                  <option value="score">Sort by Score</option>
+                  <option value="price">Sort by Price</option>
+                  <option value="mileage">Sort by Mileage</option>
+                  <option value="range">Sort by Range</option>
+                  <option value="year">Sort by Year</option>
+                </select>
+                <span className="text-sm text-slate-400">{cars.length} vehicles</span>
+              </div>
             </div>
 
             {scoredCars.length === 0 ? (
