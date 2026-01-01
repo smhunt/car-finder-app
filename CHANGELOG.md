@@ -2,6 +2,14 @@
 
 All notable changes to Car Scorer will be documented in this file.
 
+## [0.10.2] - 2025-01-01
+
+### Added
+- **Northern Ontario Location Presets** - Extended location coverage:
+  - Barrie (~165 min, distance rating: 11)
+  - Huntsville (~180 min, distance rating: 12)
+  - Ottawa (~225 min, distance rating: 15)
+
 ## [0.10.1] - 2024-12-30
 
 ### Fixed

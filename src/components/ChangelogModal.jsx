@@ -1,8 +1,16 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.10.1';
+export const APP_VERSION = '0.10.2';
 
 export const CHANGELOG = [
+  {
+    version: '0.10.2',
+    date: '2025-01-01',
+    changes: [
+      'Added northern Ontario location presets: Barrie, Huntsville, Ottawa',
+      'Extended coverage for listings beyond the GTA',
+    ],
+  },
   {
     version: '0.10.1',
     date: '2024-12-30',
