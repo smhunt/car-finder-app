@@ -1,8 +1,18 @@
 import { X, FileText, Lightbulb, Map } from 'lucide-react';
 
-export const APP_VERSION = '0.10.2';
+export const APP_VERSION = '0.10.3';
 
 export const CHANGELOG = [
+  {
+    version: '0.10.3',
+    date: '2025-01-01',
+    changes: [
+      'Sort options: Score, Price, Mileage, Range, or Year',
+      'Graded Remote Start scoring (Fob+App=100%, App=70%, Fob=50%)',
+      'Dynamic year range in Add Car modal',
+      'Code cleanup: removed debug console.log statements',
+    ],
+  },
   {
     version: '0.10.2',
     date: '2025-01-01',

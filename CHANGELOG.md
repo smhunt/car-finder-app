@@ -2,6 +2,18 @@
 
 All notable changes to Car Scorer will be documented in this file.
 
+## [0.10.3] - 2025-01-01
+
+### Added
+- **Sort Options** - Sort listings by Score, Price, Mileage, Range, or Year
+  - Starred vehicles always stay at top regardless of sort
+  - Smart sort directions (Price/Mileage low-to-high, Range/Year/Score high-to-low)
+
+### Improved
+- **Graded Remote Start Scoring** - Now scores: Fob+App=100%, App=70%, Fob=50%, None=0%
+- **Dynamic Year Range** - Add Car modal now auto-updates year options yearly
+- **Code Cleanup** - Removed debug console.log statements from DealerScraper
+
 ## [0.10.2] - 2025-01-01
 
 ### Added
