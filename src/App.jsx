@@ -91,6 +91,9 @@ const LOCATION_PRESETS = [
   { name: 'Mississauga', distance: 10 },
   { name: 'Brampton', distance: 10 },
   { name: 'Toronto', distance: 10 },
+  { name: 'Barrie', distance: 11 },
+  { name: 'Huntsville', distance: 12 },
+  { name: 'Ottawa', distance: 15 },
 ];
 
 const COLOR_PRESETS = ['White', 'Black', 'Grey', 'Silver', 'Blue', 'Red', 'Green', 'Gravity Blue', 'Cyber Grey'];
