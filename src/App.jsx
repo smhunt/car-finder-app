@@ -168,6 +168,12 @@ const normalize = (value, min, max, inverse = false) => {
   return inverse ? 1 - normalized : normalized;
 };
 
+// Graded Remote Start scoring (better than binary)
+const getRemoteStartScore = (remoteStart) => {
+  const scores = { 'Fob, App': 1, 'App': 0.7, 'Fob': 0.5, 'None': 0 };
+  return scores[remoteStart] ?? 0;
+};
+
 const calculateValueScore = (car, cars, weights) => {
   const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
   if (totalWeight === 0) return 0;
@@ -191,7 +197,7 @@ const calculateValueScore = (car, cars, weights) => {
   score += normalize(car.length, ...stats.length, true) * weights.length;
   score += normalize(car.damage, ...stats.damage, true) * weights.damage;
   score += (car.heatPump ? 1 : 0) * weights.heatPump;
-  score += (car.remoteStart === 'Fob, App' ? 1 : 0) * weights.remoteStart;
+  score += getRemoteStartScore(car.remoteStart) * weights.remoteStart;
   return (score / totalWeight) * 100;
 };
 
@@ -218,7 +224,7 @@ const getScoreBreakdown = (car, cars, weights) => {
     { key: 'length', raw: normalize(car.length, ...stats.length, true), weighted: normalize(car.length, ...stats.length, true) * weights.length / totalWeight * 100 },
     { key: 'damage', raw: normalize(car.damage, ...stats.damage, true), weighted: normalize(car.damage, ...stats.damage, true) * weights.damage / totalWeight * 100 },
     { key: 'heatPump', raw: car.heatPump ? 1 : 0, weighted: (car.heatPump ? 1 : 0) * weights.heatPump / totalWeight * 100 },
-    { key: 'remoteStart', raw: car.remoteStart === 'Fob, App' ? 1 : 0, weighted: (car.remoteStart === 'Fob, App' ? 1 : 0) * weights.remoteStart / totalWeight * 100 },
+    { key: 'remoteStart', raw: getRemoteStartScore(car.remoteStart), weighted: getRemoteStartScore(car.remoteStart) * weights.remoteStart / totalWeight * 100 },
   ];
 };
 
@@ -849,7 +855,8 @@ const AddCarModal = ({ onClose, onAdd, onUpdate, existingDealers, editCar }) => 
   };
 
   const makes = Object.keys(VEHICLE_DATABASE);
-  const years = [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 8 }, (_, i) => currentYear + 1 - i);
 
   return (
     <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>

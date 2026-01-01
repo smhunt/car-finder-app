@@ -236,8 +236,6 @@ function detectVehicleInfo(data) {
 
   if (candidates.length > 0) {
     const best = candidates[0];
-    console.log('[Scraper] Vehicle detection candidates:', candidates.slice(0, 5));
-    console.log('[Scraper] Selected:', best);
     return best;
   }
 
@@ -344,8 +342,6 @@ function parseScrapedData(data) {
 
   // Get EV specs if known model
   const specs = make && model && EV_SPECS[make]?.[model];
-
-  console.log('[Scraper] Parsed data:', { year, make, model, trim, price, mileage, color, dealer });
 
   return {
     year,
@@ -853,8 +849,6 @@ export default function DealerScraper({ onAddCar, onClose, locationPresets = [] 
           }
         } catch {}
       });
-
-      console.log('[Scraper] Extracted metadata:', { pageTitle, ogTitle, h1Text, structuredData });
 
       // Try to extract price from DOM
       let priceFromDom = null;
