@@ -1,0 +1,95 @@
+/**
+ * ListingClipper - Content Styles
+ * Injected into vehicle listing pages for highlight mode
+ */
+
+/* Highlight selection style when extension is active */
+::selection {
+  background-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+/* ListingClipper floating indicator */
+.listing-clipper-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: white;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: slideIn 0.3s ease;
+}
+
+.listing-clipper-indicator:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.5);
+}
+
+.listing-clipper-indicator svg {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Highlight mode active state */
+.listing-clipper-highlight-mode {
+  cursor: crosshair !important;
+}
+
+.listing-clipper-highlight-mode * {
+  cursor: crosshair !important;
+}
+
+/* Field highlight tooltip */
+.listing-clipper-field-tooltip {
+  position: fixed;
+  padding: 8px 12px;
+  background: #1f2937;
+  color: white;
+  border-radius: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  z-index: 999999;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.listing-clipper-field-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+}
+
+/* Success flash animation */
+@keyframes successFlash {
+  0% { background-color: rgba(16, 185, 129, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.listing-clipper-success-flash {
+  animation: successFlash 0.5s ease;
+}

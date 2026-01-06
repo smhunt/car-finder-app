@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "EV Finder - Vehicle Listing Clipper",
+  "version": "0.1.0",
+  "description": "Quickly save vehicle listings to EV Finder with automatic data extraction",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.autotrader.ca/*",
+    "https://www.kijiji.ca/*",
+    "https://www.cargurus.ca/*",
+    "https://www.cargurus.com/*",
+    "https://www.cars.com/*",
+    "https://www.carfax.ca/*",
+    "https://*.dealer.com/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Save Vehicle to EV Finder"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.autotrader.ca/*",
+        "https://www.kijiji.ca/*",
+        "https://www.cargurus.ca/*",
+        "https://www.cargurus.com/*",
+        "https://www.cars.com/*",
+        "https://www.carfax.ca/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content-styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

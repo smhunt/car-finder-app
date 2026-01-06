@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Finder - Save Vehicle</title>
+  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-left">
+        <div class="drag-handle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+            <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+          </svg>
+        </div>
+        <div class="header-title">
+          <svg class="sparkle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
+            <path d="M5 19l1 3 1-3 3-1-3-1-1-3-1 3-3 1 3 1z"/>
+          </svg>
+          <span>Vehicle Insights</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Split -->
+    <div class="content-wrapper">
+      <!-- Left Panel: Extracted Data -->
+      <div class="left-panel">
+        <!-- Tagged Description Section -->
+        <div class="section collapsible">
+          <div class="section-header">
+            <span>Tagged Description</span>
+            <button class="toggle-btn" data-section="tagged">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="section-content hidden" id="tagged-content">
+            <div class="tag-list" id="extracted-tags"></div>
+          </div>
+        </div>
+
+        <!-- Keywords Section -->
+        <div class="section collapsible">
+          <div class="section-header">
+            <span>Keywords</span>
+            <button class="toggle-btn expanded" data-section="keywords">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="section-content" id="keywords-content">
+            <div class="keyword-group">
+              <div class="keyword-group-title">
+                Vehicle Specs
+                <span class="help-icon" title="Extracted vehicle specifications">?</span>
+              </div>
+              <div class="keyword-list" id="spec-keywords"></div>
+            </div>
+            <div class="keyword-group">
+              <div class="keyword-group-title">Features</div>
+              <div class="keyword-list" id="feature-keywords"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Form Preview -->
+      <div class="right-panel">
+        <!-- Vehicle Title Card -->
+        <div class="vehicle-card">
+          <div class="vehicle-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 17h14v-5H5v5z"/>
+              <path d="M19 12l-2-5H7l-2 5"/>
+              <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+            </svg>
+          </div>
+          <div class="vehicle-title">
+            <div class="vehicle-name" id="vehicle-name">Loading...</div>
+            <div class="vehicle-subtitle" id="vehicle-subtitle">Detecting vehicle info...</div>
+          </div>
+        </div>
+
+        <!-- Form Fields -->
+        <div class="form-section">
+          <!-- Make/Model -->
+          <div class="form-group">
+            <label>Make & Model</label>
+            <div class="input-with-dropdown">
+              <input type="text" id="make-model" placeholder="e.g. Chevrolet Bolt EV">
+              <div class="dropdown-list hidden" id="make-model-dropdown"></div>
+            </div>
+          </div>
+
+          <!-- Year & Trim Row -->
+          <div class="form-row">
+            <div class="form-group half">
+              <label>Year</label>
+              <input type="number" id="year" placeholder="2023" min="2010" max="2026">
+            </div>
+            <div class="form-group half">
+              <label>Trim</label>
+              <select id="trim">
+                <option value="">Select trim...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Price & Odometer Row -->
+          <div class="form-row">
+            <div class="form-group half">
+              <label>Price</label>
+              <div class="input-with-prefix">
+                <span class="prefix">$</span>
+                <input type="text" id="price" placeholder="35,000">
+              </div>
+            </div>
+            <div class="form-group half">
+              <label>Odometer</label>
+              <div class="input-with-suffix">
+                <input type="text" id="odometer" placeholder="45,000">
+                <span class="suffix">km</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dealer -->
+          <div class="form-group">
+            <label>Dealer</label>
+            <input type="text" id="dealer" placeholder="Dealer name">
+          </div>
+
+          <!-- Location -->
+          <div class="form-group">
+            <label>Location</label>
+            <div class="input-with-icon">
+              <input type="text" id="location" placeholder="City, Province">
+              <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Post URL -->
+          <div class="form-group">
+            <label>Post URL</label>
+            <div class="url-input-group">
+              <input type="text" id="post-url" placeholder="https://" readonly>
+              <button class="clear-btn" id="clear-url" title="Clear URL">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label>Description</label>
+            <div class="rich-text-toolbar">
+              <button class="toolbar-btn" title="Bold"><strong>B</strong></button>
+              <button class="toolbar-btn" title="Italic"><em>I</em></button>
+              <button class="toolbar-btn" title="Underline"><u>U</u></button>
+            </div>
+            <textarea id="description" placeholder="Vehicle notes and description..." rows="4"></textarea>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="form-footer">
+          <button class="board-selector" id="board-selector">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v10"/>
+              <path d="m4.93 4.93 4.24 4.24m5.66 5.66 4.24 4.24"/>
+              <path d="M1 12h6m6 0h10"/><path d="m4.93 19.07 4.24-4.24m5.66-5.66 4.24-4.24"/>
+            </svg>
+            <span>EV Finder 2025</span>
+          </button>
+          <button class="save-btn" id="save-btn">
+            <span>Save to Board</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14m-7-7 7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Powered By -->
+        <div class="powered-by">
+          Powered by <a href="#" id="app-link">EV Finder</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Highlight Mode Indicator -->
+    <div class="highlight-mode hidden" id="highlight-mode">
+      <div class="highlight-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7l2-7z"/>
+        </svg>
+        <span>Highlight text on page to fill: <strong id="active-field">Make & Model</strong></span>
+      </div>
+    </div>
+
+    <!-- Status Toast -->
+    <div class="toast hidden" id="toast">
+      <span class="toast-message"></span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
