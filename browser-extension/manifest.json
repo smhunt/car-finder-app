@@ -10,6 +10,7 @@
   ],
   "host_permissions": [
     "https://www.autotrader.ca/*",
+    "https://www.autohebdo.net/*",
     "https://www.kijiji.ca/*",
     "https://www.cargurus.ca/*",
     "https://www.cargurus.com/*",
@@ -37,13 +38,14 @@
     {
       "matches": [
         "https://www.autotrader.ca/*",
+        "https://www.autohebdo.net/*",
         "https://www.kijiji.ca/*",
         "https://www.cargurus.ca/*",
         "https://www.cargurus.com/*",
         "https://www.cars.com/*",
         "https://www.carfax.ca/*"
       ],
-      "js": ["content.js", "panel.js"],
+      "js": ["panel.js"],
       "css": ["content-styles.css"],
       "run_at": "document_idle"
     }

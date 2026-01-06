@@ -679,41 +679,130 @@ document.addEventListener('mouseup', (e) => {
 });
 
 // ============================================================================
-// DATA EXTRACTION
+// SITE-SPECIFIC EXTRACTORS
 // ============================================================================
 
-function extractPageData() {
-  const data = {};
-  const url = window.location.href;
-  const pageText = document.body.innerText;
+/**
+ * AutoTrader.ca extraction
+ * Title format: "YEAR MAKE MODEL | $PRICE | ODOMETER km | TYPE for sale by DEALER | LOCATION"
+ */
+function extractAutoTrader(data, pageTitle, pageText) {
+  // Parse the structured title: "2021 Polestar 2 | $29,995 | 59,156 km | Electric Hatchback for sale by HGrégoire | St-Eustache, QC"
+  const parts = pageTitle.split('|').map(p => p.trim());
 
-  // Extract from page title
-  const title = document.querySelector('h1')?.textContent || document.title;
+  if (parts.length >= 4) {
+    // First part: Year Make Model
+    const firstPart = parts[0];
+    const yearMatch = firstPart.match(/^(\d{4})\s+(.+)$/);
+    if (yearMatch) {
+      data.year = yearMatch[1];
+      data.makeModel = yearMatch[2];
+    }
+
+    // Second part: Price
+    const priceMatch = parts[1].match(/\$\s*([\d,]+)/);
+    if (priceMatch) {
+      data.price = priceMatch[1].replace(/,/g, '');
+    }
+
+    // Third part: Odometer
+    const odometerMatch = parts[2].match(/([\d,]+)\s*km/i);
+    if (odometerMatch) {
+      data.odometer = odometerMatch[1].replace(/,/g, '');
+    }
+
+    // Fourth part: "TYPE for sale by DEALER"
+    if (parts[3]) {
+      const dealerMatch = parts[3].match(/for sale by\s+(.+)$/i);
+      if (dealerMatch) {
+        data.dealer = dealerMatch[1].trim();
+      }
+    }
+
+    // Fifth part: Location
+    if (parts[4]) {
+      data.location = parts[4].trim();
+    }
+  }
+
+  // Fallback: try to get location from page if not in title
+  if (!data.location) {
+    const locationEl = document.querySelector('[class*="location"], [class*="address"]');
+    if (locationEl) {
+      data.location = locationEl.textContent.trim().substring(0, 100);
+    }
+  }
+}
+
+/**
+ * Kijiji.ca extraction
+ */
+function extractKijiji(data, pageTitle, pageText) {
+  // Kijiji title format varies, try to extract from page elements
+  const h1 = document.querySelector('h1');
+  if (h1) {
+    const title = h1.textContent;
+    const yearMatch = title.match(/\b(20[12]\d)\b/);
+    if (yearMatch) data.year = yearMatch[1];
+  }
+
+  // Price
+  const priceEl = document.querySelector('[class*="price"], [itemprop="price"]');
+  if (priceEl) {
+    const priceMatch = priceEl.textContent.match(/\$\s*([\d,]+)/);
+    if (priceMatch) data.price = priceMatch[1].replace(/,/g, '');
+  }
+
+  // Odometer - look for km in attributes section
+  const kmMatch = pageText.match(/(\d{1,3}(?:,\d{3})*)\s*km/i);
+  if (kmMatch) data.odometer = kmMatch[1].replace(/,/g, '');
+
+  // Location
+  const locationEl = document.querySelector('[class*="location"]');
+  if (locationEl) data.location = locationEl.textContent.trim();
+}
+
+/**
+ * CarGurus extraction
+ */
+function extractCarGurus(data, pageTitle, pageText) {
+  // CarGurus title: "Used YEAR MAKE MODEL for Sale"
+  const yearMatch = pageTitle.match(/\b(20[12]\d)\b/);
+  if (yearMatch) data.year = yearMatch[1];
+
+  // Price
+  const priceEl = document.querySelector('[class*="price"], [data-testid*="price"]');
+  if (priceEl) {
+    const priceMatch = priceEl.textContent.match(/\$\s*([\d,]+)/);
+    if (priceMatch) data.price = priceMatch[1].replace(/,/g, '');
+  }
+
+  // Odometer
+  const kmMatch = pageText.match(/(\d{1,3}(?:,\d{3})*)\s*(?:km|mi)/i);
+  if (kmMatch) data.odometer = kmMatch[1].replace(/,/g, '');
+
+  // Dealer
+  const dealerEl = document.querySelector('[class*="dealer"]');
+  if (dealerEl) data.dealer = dealerEl.textContent.trim();
+}
+
+/**
+ * Generic extraction for unsupported sites
+ */
+function extractGeneric(data, pageTitle, pageText) {
+  const title = document.querySelector('h1')?.textContent || pageTitle;
 
   // Year
   const yearMatch = title.match(/\b(20[12]\d)\b/) || pageText.match(/\b(20[12]\d)\b/);
   if (yearMatch) data.year = yearMatch[1];
 
   // Price
-  const priceEl = document.querySelector('[class*="price"], [data-testid*="price"]');
-  const priceMatch = (priceEl?.textContent || pageText).match(/\$\s*([\d,]+)/);
+  const priceMatch = pageText.match(/\$\s*([\d,]+)/);
   if (priceMatch) data.price = priceMatch[1].replace(/,/g, '');
 
   // Odometer
-  const kmMatch = pageText.match(/([\d,]+)\s*(?:km|kms|kilometers)/i);
+  const kmMatch = pageText.match(/(\d{1,3}(?:,\d{3})*)\s*(?:km|kms|kilometers|mi|miles)/i);
   if (kmMatch) data.odometer = kmMatch[1].replace(/,/g, '');
-
-  // Make/Model detection
-  for (const [make, models] of Object.entries(VEHICLE_DATABASE)) {
-    for (const model of Object.keys(models)) {
-      if (title.toLowerCase().includes(make.toLowerCase()) &&
-          title.toLowerCase().includes(model.toLowerCase())) {
-        data.makeModel = `${make} ${model}`;
-        break;
-      }
-    }
-    if (data.makeModel) break;
-  }
 
   // Dealer
   const dealerEl = document.querySelector('[class*="dealer"], [data-testid*="dealer"]');
@@ -722,6 +811,43 @@ function extractPageData() {
   // Location
   const locationEl = document.querySelector('[class*="location"], [class*="address"]');
   if (locationEl) data.location = locationEl.textContent.trim().substring(0, 100);
+}
+
+// ============================================================================
+// DATA EXTRACTION
+// ============================================================================
+
+function extractPageData() {
+  const data = {};
+  const url = window.location.href;
+  const pageText = document.body.innerText;
+  const pageTitle = document.title;
+
+  // Site-specific extraction
+  if (url.includes('autotrader.ca') || url.includes('autohebdo.net')) {
+    extractAutoTrader(data, pageTitle, pageText);
+  } else if (url.includes('kijiji.ca')) {
+    extractKijiji(data, pageTitle, pageText);
+  } else if (url.includes('cargurus')) {
+    extractCarGurus(data, pageTitle, pageText);
+  } else {
+    extractGeneric(data, pageTitle, pageText);
+  }
+
+  // Make/Model detection from vehicle database
+  if (!data.makeModel) {
+    const title = document.querySelector('h1')?.textContent || pageTitle;
+    for (const [make, models] of Object.entries(VEHICLE_DATABASE)) {
+      for (const model of Object.keys(models)) {
+        if (title.toLowerCase().includes(make.toLowerCase()) &&
+            title.toLowerCase().includes(model.toLowerCase())) {
+          data.makeModel = `${make} ${model}`;
+          break;
+        }
+      }
+      if (data.makeModel) break;
+    }
+  }
 
   // Keywords
   const keywords = [];
@@ -873,15 +999,40 @@ function showToast(message, type = 'info') {
 // ============================================================================
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('[EV Clipper] Received message:', message.type);
   if (message.type === 'TOGGLE_PANEL') {
-    injectPanel();
+    const panel = document.getElementById('ev-clipper-panel');
+    if (panel) {
+      // Panel exists - toggle visibility
+      const wasHidden = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden');
+      panelVisible = !panel.classList.contains('hidden');
+      console.log('[EV Clipper] Panel toggled, was hidden:', wasHidden, 'now visible:', panelVisible);
+    } else {
+      // Panel doesn't exist - inject it
+      console.log('[EV Clipper] Panel not found, injecting...');
+      injectPanel();
+    }
     sendResponse({ success: true });
   }
   return true;
 });
 
-// Auto-inject when loaded
-console.log('[EV Clipper] Panel script starting...');
-window.__evClipperInjected = true;
-injectPanel();
-console.log('[EV Clipper] Panel injected!');
+// Auto-inject when loaded (only once per page)
+if (!window.__evClipperInitialized) {
+  window.__evClipperInitialized = true;
+  console.log('[EV Clipper] Panel script starting (first load)...');
+  injectPanel();
+  console.log('[EV Clipper] Panel injected!');
+} else {
+  // Script re-executed (from background.js), just toggle
+  console.log('[EV Clipper] Script re-executed, toggling panel...');
+  const panel = document.getElementById('ev-clipper-panel');
+  if (panel) {
+    panel.classList.toggle('hidden');
+    console.log('[EV Clipper] Panel toggled to:', panel.classList.contains('hidden') ? 'hidden' : 'visible');
+  } else {
+    console.log('[EV Clipper] Panel not found, injecting...');
+    injectPanel();
+  }
+}

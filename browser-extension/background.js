@@ -42,7 +42,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 // ============================================================================
 
 chrome.action.onClicked.addListener(async (tab) => {
-  console.log('[ListingClipper] Extension icon clicked, injecting panel into tab:', tab.id);
+  console.log('[ListingClipper] Extension icon clicked for tab:', tab.id, tab.url);
 
   // Check if we can inject into this tab
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
@@ -50,25 +50,49 @@ chrome.action.onClicked.addListener(async (tab) => {
     return;
   }
 
+  // First try to toggle via direct script execution (more reliable)
   try {
-    // First, check if panel is already injected by sending a message
-    const response = await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' }).catch(() => null);
-
-    if (response?.success) {
-      console.log('[ListingClipper] Panel toggled');
-      return;
-    }
-
-    // Panel not injected yet, inject it
-    console.log('[ListingClipper] Injecting panel.js...');
-    await chrome.scripting.executeScript({
+    const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      files: ['panel.js']
+      func: () => {
+        const panel = document.getElementById('ev-clipper-panel');
+        if (panel) {
+          panel.classList.toggle('hidden');
+          console.log('[EV Clipper] Direct toggle - panel now:', panel.classList.contains('hidden') ? 'hidden' : 'visible');
+          return { toggled: true, visible: !panel.classList.contains('hidden') };
+        }
+        return { toggled: false, exists: false };
+      }
     });
 
-    console.log('[ListingClipper] Panel injected successfully');
+    console.log('[ListingClipper] Direct toggle result:', results);
+
+    // If panel didn't exist, inject it
+    if (results && results[0] && !results[0].result.toggled) {
+      console.log('[ListingClipper] Panel not found, injecting panel.js...');
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['panel.js']
+      });
+      console.log('[ListingClipper] Panel injected');
+    }
   } catch (error) {
-    console.error('[ListingClipper] Failed to inject panel:', error);
+    console.error('[ListingClipper] Script execution failed:', error);
+    // Fallback: try message passing
+    try {
+      await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' });
+      console.log('[ListingClipper] Fallback message sent');
+    } catch (msgError) {
+      console.log('[ListingClipper] Message failed, injecting panel.js...');
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['panel.js']
+        });
+      } catch (injectError) {
+        console.error('[ListingClipper] Failed to inject:', injectError);
+      }
+    }
   }
 });
 
