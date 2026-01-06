@@ -38,6 +38,41 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 // ============================================================================
+// EXTENSION ICON CLICK - Inject Panel
+// ============================================================================
+
+chrome.action.onClicked.addListener(async (tab) => {
+  console.log('[ListingClipper] Extension icon clicked, injecting panel into tab:', tab.id);
+
+  // Check if we can inject into this tab
+  if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+    console.log('[ListingClipper] Cannot inject into this URL:', tab.url);
+    return;
+  }
+
+  try {
+    // First, check if panel is already injected by sending a message
+    const response = await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' }).catch(() => null);
+
+    if (response?.success) {
+      console.log('[ListingClipper] Panel toggled');
+      return;
+    }
+
+    // Panel not injected yet, inject it
+    console.log('[ListingClipper] Injecting panel.js...');
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['panel.js']
+    });
+
+    console.log('[ListingClipper] Panel injected successfully');
+  } catch (error) {
+    console.error('[ListingClipper] Failed to inject panel:', error);
+  }
+});
+
+// ============================================================================
 // MESSAGE ROUTING
 // ============================================================================
 
@@ -127,10 +162,17 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === 'save-to-evfinder') {
-    // Open popup programmatically
-    chrome.action.openPopup();
+    // Inject panel
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['panel.js']
+      });
+    } catch (error) {
+      console.error('[ListingClipper] Failed to inject panel from context menu:', error);
+    }
   }
 });
 

@@ -19,7 +19,6 @@
     "https://*/*"
   ],
   "action": {
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
@@ -44,7 +43,7 @@
         "https://www.cars.com/*",
         "https://www.carfax.ca/*"
       ],
-      "js": ["content.js"],
+      "js": ["content.js", "panel.js"],
       "css": ["content-styles.css"],
       "run_at": "document_idle"
     }
@@ -54,7 +53,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["icons/*"],
+      "resources": ["icons/*", "panel.js", "content-styles.css"],
       "matches": ["<all_urls>"]
     }
   ]
