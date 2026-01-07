@@ -998,41 +998,40 @@ function showToast(message, type = 'info') {
 // MESSAGE HANDLING
 // ============================================================================
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('[EV Clipper] Received message:', message.type);
-  if (message.type === 'TOGGLE_PANEL') {
-    const panel = document.getElementById('ev-clipper-panel');
-    if (panel) {
-      // Panel exists - toggle visibility
-      const wasHidden = panel.classList.contains('hidden');
-      panel.classList.toggle('hidden');
-      panelVisible = !panel.classList.contains('hidden');
-      console.log('[EV Clipper] Panel toggled, was hidden:', wasHidden, 'now visible:', panelVisible);
-    } else {
-      // Panel doesn't exist - inject it
-      console.log('[EV Clipper] Panel not found, injecting...');
-      injectPanel();
-    }
-    sendResponse({ success: true });
-  }
-  return true;
-});
+// Only register message handler once
+if (!window.__evClipperMessageHandlerRegistered) {
+  window.__evClipperMessageHandlerRegistered = true;
 
-// Auto-inject when loaded (only once per page)
-if (!window.__evClipperInitialized) {
-  window.__evClipperInitialized = true;
-  console.log('[EV Clipper] Panel script starting (first load)...');
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log('[EV Clipper] Received message:', message.type);
+
+    if (message.type === 'TOGGLE_PANEL') {
+      const panel = document.getElementById('ev-clipper-panel');
+
+      if (panel) {
+        // Panel exists - toggle visibility
+        const wasHidden = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden');
+        panelVisible = !panel.classList.contains('hidden');
+        console.log('[EV Clipper] Panel toggled, was hidden:', wasHidden, 'now visible:', panelVisible);
+        sendResponse({ success: true, action: 'toggled', visible: panelVisible });
+      } else {
+        // Panel doesn't exist - inject it
+        console.log('[EV Clipper] Panel not found, creating...');
+        injectPanel();
+        sendResponse({ success: true, action: 'created' });
+      }
+    }
+    return true;
+  });
+
+  console.log('[EV Clipper] Message handler registered');
+}
+
+// Auto-inject panel on first load (for content_scripts sites)
+if (!window.__evClipperPanelInjected) {
+  window.__evClipperPanelInjected = true;
+  console.log('[EV Clipper] Auto-injecting panel on first load...');
   injectPanel();
-  console.log('[EV Clipper] Panel injected!');
-} else {
-  // Script re-executed (from background.js), just toggle
-  console.log('[EV Clipper] Script re-executed, toggling panel...');
-  const panel = document.getElementById('ev-clipper-panel');
-  if (panel) {
-    panel.classList.toggle('hidden');
-    console.log('[EV Clipper] Panel toggled to:', panel.classList.contains('hidden') ? 'hidden' : 'visible');
-  } else {
-    console.log('[EV Clipper] Panel not found, injecting...');
-    injectPanel();
-  }
+  console.log('[EV Clipper] Panel ready!');
 }

@@ -50,48 +50,21 @@ chrome.action.onClicked.addListener(async (tab) => {
     return;
   }
 
-  // First try to toggle via direct script execution (more reliable)
+  // Message passing first - content script is already loaded on supported sites
   try {
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => {
-        const panel = document.getElementById('ev-clipper-panel');
-        if (panel) {
-          panel.classList.toggle('hidden');
-          console.log('[EV Clipper] Direct toggle - panel now:', panel.classList.contains('hidden') ? 'hidden' : 'visible');
-          return { toggled: true, visible: !panel.classList.contains('hidden') };
-        }
-        return { toggled: false, exists: false };
-      }
-    });
-
-    console.log('[ListingClipper] Direct toggle result:', results);
-
-    // If panel didn't exist, inject it
-    if (results && results[0] && !results[0].result.toggled) {
-      console.log('[ListingClipper] Panel not found, injecting panel.js...');
+    const response = await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' });
+    console.log('[ListingClipper] Toggle response:', response);
+  } catch (error) {
+    // Content script not loaded (unsupported site or first time), inject it
+    console.log('[ListingClipper] Content script not ready, injecting panel.js...', error.message);
+    try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         files: ['panel.js']
       });
       console.log('[ListingClipper] Panel injected');
-    }
-  } catch (error) {
-    console.error('[ListingClipper] Script execution failed:', error);
-    // Fallback: try message passing
-    try {
-      await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' });
-      console.log('[ListingClipper] Fallback message sent');
-    } catch (msgError) {
-      console.log('[ListingClipper] Message failed, injecting panel.js...');
-      try {
-        await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ['panel.js']
-        });
-      } catch (injectError) {
-        console.error('[ListingClipper] Failed to inject:', injectError);
-      }
+    } catch (injectError) {
+      console.error('[ListingClipper] Failed to inject:', injectError);
     }
   }
 });
