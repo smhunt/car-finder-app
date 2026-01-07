@@ -50,22 +50,15 @@ chrome.action.onClicked.addListener(async (tab) => {
     return;
   }
 
-  // Message passing first - content script is already loaded on supported sites
+  // Simply inject panel.js - it handles toggle vs create internally
   try {
-    const response = await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' });
-    console.log('[ListingClipper] Toggle response:', response);
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['panel.js']
+    });
+    console.log('[ListingClipper] Panel script executed');
   } catch (error) {
-    // Content script not loaded (unsupported site or first time), inject it
-    console.log('[ListingClipper] Content script not ready, injecting panel.js...', error.message);
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['panel.js']
-      });
-      console.log('[ListingClipper] Panel injected');
-    } catch (injectError) {
-      console.error('[ListingClipper] Failed to inject:', injectError);
-    }
+    console.error('[ListingClipper] Failed to inject:', error);
   }
 });
 
