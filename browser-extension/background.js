@@ -44,9 +44,14 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.action.onClicked.addListener(async (tab) => {
   console.log('[ListingClipper] Extension icon clicked for tab:', tab.id, tab.url);
 
+  // Visual feedback - flash badge to show click received
+  chrome.action.setBadgeText({ text: '...' });
+  chrome.action.setBadgeBackgroundColor({ color: '#f97316' });
+
   // Check if we can inject into this tab
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
     console.log('[ListingClipper] Cannot inject into this URL:', tab.url);
+    chrome.action.setBadgeText({ text: 'ERR' });
     return;
   }
 
@@ -57,8 +62,11 @@ chrome.action.onClicked.addListener(async (tab) => {
       files: ['panel.js']
     });
     console.log('[ListingClipper] Panel script executed');
+    chrome.action.setBadgeText({ text: 'OK' });
+    setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1000);
   } catch (error) {
     console.error('[ListingClipper] Failed to inject:', error);
+    chrome.action.setBadgeText({ text: 'ERR' });
   }
 });
 
@@ -94,17 +102,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 /**
  * Forward message to popup window
+ * Note: chrome.extension.getViews is deprecated in MV3, using storage instead
  */
-async function forwardToPopup(message) {
-  try {
-    // Get popup view if open
-    const views = await chrome.extension.getViews({ type: 'popup' });
-    if (views.length > 0) {
-      views[0].postMessage(message, '*');
-    }
-  } catch (error) {
-    // Popup not open, ignore
-  }
+function forwardToPopup(message) {
+  // Store highlighted text in session storage for popup to read
+  chrome.storage.session.set({ lastHighlightedText: message.text }).catch(() => {});
 }
 
 /**
