@@ -672,7 +672,9 @@ document.addEventListener('mouseup', (e) => {
   // Don't capture selections inside the panel
   if (e.target.closest('#ev-clipper-panel')) return;
 
-  if (!panelVisible || !activeField) return;
+  // Check actual DOM state instead of variable (variable gets stale after toggle)
+  const panel = document.getElementById('ev-clipper-panel');
+  if (!panel || panel.classList.contains('hidden') || !activeField) return;
 
   const selection = window.getSelection();
   const text = selection?.toString().trim();
