@@ -668,7 +668,12 @@ function clearActiveField() {
 // TEXT SELECTION HANDLER
 // ============================================================================
 
+let lastMouseupTime = 0;
 document.addEventListener('mouseup', (e) => {
+  // Debounce - prevent rapid-fire processing
+  const now = Date.now();
+  if (now - lastMouseupTime < 100) return;
+  lastMouseupTime = now;
   // Don't capture selections inside the panel
   if (e.target.closest('#ev-clipper-panel')) return;
 
