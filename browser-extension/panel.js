@@ -577,6 +577,7 @@ function initPanel() {
 
   // Close button
   document.getElementById('ev-clipper-close').addEventListener('click', () => {
+    clearActiveField();
     panel.classList.add('hidden');
     panelVisible = false;
   });
@@ -584,31 +585,13 @@ function initPanel() {
   // Make draggable
   makeDraggable(panel);
 
-  // Field focus for highlight mode
+  // Field focus for highlight mode - NO blur handler (sticky activeField)
   panel.querySelectorAll('input, textarea').forEach(field => {
     field.addEventListener('focus', () => {
       setActiveField(field);
     });
-    field.addEventListener('blur', (e) => {
-      // Only clear active field if focus is moving to another field WITHIN the panel
-      // If focus is moving outside the panel (e.g., to select text on page), keep activeField
-      setTimeout(() => {
-        if (activeField === field) {
-          // Check if the new focused element is inside the panel
-          const newFocusedElement = document.activeElement;
-          const isNewFocusInPanel = newFocusedElement &&
-            document.getElementById('ev-clipper-panel')?.contains(newFocusedElement);
-
-          // Only clear if focus moved to another panel field (not outside)
-          if (isNewFocusInPanel) {
-            // Focus moved to another field in panel - that field's focus handler will set it as active
-            // No need to clear here as setActiveField will handle it
-          }
-          // If focus moved outside panel, keep activeField for text selection
-          // Don't call clearActiveField() - user is likely selecting text on page
-        }
-      }, 100);
-    });
+    // No blur handler - activeField stays set until explicitly cleared
+    // This prevents race conditions with text selection on the page
   });
 
   // Make/Model change - update trims
@@ -717,11 +700,9 @@ document.addEventListener('mouseup', (e) => {
     if (currentIndex < fields.length - 1) {
       fields[currentIndex + 1].focus();
     }
-  } else {
-    // User clicked on page without selecting text - clear highlight mode
-    console.log('[EV Clipper] Highlight mode: click without selection, clearing active field');
-    clearActiveField();
   }
+  // If no text selected, do NOT clear activeField - it stays "sticky"
+  // User might just be clicking/scrolling without intending to deactivate highlight mode
 });
 
 // ============================================================================
@@ -1004,6 +985,7 @@ function saveVehicle() {
     localStorage.setItem(storageKey, JSON.stringify(existing));
 
     showToast('Saved to EV Finder!', 'success');
+    clearActiveField();
 
     // Close panel after delay
     setTimeout(() => {
