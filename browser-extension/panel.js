@@ -589,10 +589,23 @@ function initPanel() {
     field.addEventListener('focus', () => {
       setActiveField(field);
     });
-    field.addEventListener('blur', () => {
+    field.addEventListener('blur', (e) => {
+      // Only clear active field if focus is moving to another field WITHIN the panel
+      // If focus is moving outside the panel (e.g., to select text on page), keep activeField
       setTimeout(() => {
         if (activeField === field) {
-          clearActiveField();
+          // Check if the new focused element is inside the panel
+          const newFocusedElement = document.activeElement;
+          const isNewFocusInPanel = newFocusedElement &&
+            document.getElementById('ev-clipper-panel')?.contains(newFocusedElement);
+
+          // Only clear if focus moved to another panel field (not outside)
+          if (isNewFocusInPanel) {
+            // Focus moved to another field in panel - that field's focus handler will set it as active
+            // No need to clear here as setActiveField will handle it
+          }
+          // If focus moved outside panel, keep activeField for text selection
+          // Don't call clearActiveField() - user is likely selecting text on page
         }
       }, 100);
     });
@@ -651,11 +664,15 @@ function setActiveField(field) {
   field.classList.add('highlight-active');
 
   const info = document.getElementById('ev-clipper-highlight-info');
-  info.textContent = `Highlight text to fill: ${field.previousElementSibling?.textContent || 'field'}`;
+  const fieldName = field.previousElementSibling?.textContent || field.dataset.field || 'field';
+  info.textContent = `Highlight text to fill: ${fieldName}`;
   info.classList.add('active');
+
+  console.log('[EV Clipper] Highlight mode: activated for field', field.dataset.field);
 }
 
 function clearActiveField() {
+  console.log('[EV Clipper] Highlight mode: deactivated');
   activeField = null;
   document.querySelectorAll('.highlight-active').forEach(f => f.classList.remove('highlight-active'));
 
@@ -674,12 +691,17 @@ document.addEventListener('mouseup', (e) => {
 
   // Check actual DOM state instead of variable (variable gets stale after toggle)
   const panel = document.getElementById('ev-clipper-panel');
-  if (!panel || panel.classList.contains('hidden') || !activeField) return;
+  if (!panel || panel.classList.contains('hidden')) return;
+
+  // If no active field, nothing to do
+  if (!activeField) return;
 
   const selection = window.getSelection();
   const text = selection?.toString().trim();
 
   if (text && text.length > 0 && text.length < 1000) {
+    // User selected text - fill the active field
+    console.log('[EV Clipper] Highlight mode: captured text for field', activeField.dataset.field, ':', text);
     activeField.value = text;
     activeField.dispatchEvent(new Event('input'));
     showToast(`Filled: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`);
@@ -690,6 +712,10 @@ document.addEventListener('mouseup', (e) => {
     if (currentIndex < fields.length - 1) {
       fields[currentIndex + 1].focus();
     }
+  } else {
+    // User clicked on page without selecting text - clear highlight mode
+    console.log('[EV Clipper] Highlight mode: click without selection, clearing active field');
+    clearActiveField();
   }
 });
 

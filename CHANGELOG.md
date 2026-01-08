@@ -2,6 +2,26 @@
 
 All notable changes to Car Scorer will be documented in this file.
 
+## [0.11.0] - 2025-01-08
+
+### Added
+- **Browser Extension (EV Finder - Vehicle Listing Clipper)** - Chrome extension for saving listings directly from dealer sites
+  - Floating side panel with vehicle data extraction
+  - Auto-extracts: Make/Model, Year, Price, Odometer, Dealer, Location
+  - Site-specific extractors for AutoTrader.ca, AutoHebdo.net, Kijiji.ca, CarGurus, Cars.com, Carfax.ca
+  - Generic fallback extractor for unknown dealer sites
+  - Keyword detection (EV, Electric badges)
+  - **Highlight Mode** - Click a field, then highlight text on page to fill it
+  - Saves directly to localStorage (`evscorer_data`) synced with main app
+  - Toggle panel with extension icon click
+  - Right-click context menu "Save to EV Finder" on vehicle pages
+
+### Fixed
+- Browser extension panel toggle - now reliably opens/closes with icon click
+- Service worker crash from missing `contextMenus` permission
+- Removed deprecated `chrome.extension.getViews()` API
+- Highlight mode stale closure bug - now checks DOM state directly
+
 ## [0.10.3] - 2025-01-01
 
 ### Added
