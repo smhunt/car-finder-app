@@ -693,11 +693,16 @@ document.addEventListener('mouseup', (e) => {
   const panel = document.getElementById('ev-clipper-panel');
   if (!panel || panel.classList.contains('hidden')) return;
 
-  // If no active field, nothing to do
-  if (!activeField) return;
-
   const selection = window.getSelection();
   const text = selection?.toString().trim();
+
+  // If no active field but user selected text, show a preview toast
+  if (!activeField) {
+    if (text && text.length > 0 && text.length < 1000) {
+      showToast(`Selected: "${text.substring(0, 40)}${text.length > 40 ? '...' : ''}" - Click a field to fill it`);
+    }
+    return;
+  }
 
   if (text && text.length > 0 && text.length < 1000) {
     // User selected text - fill the active field
