@@ -705,9 +705,10 @@ document.addEventListener('mouseup', (e) => {
     if (currentIndex < fields.length - 1) {
       fields[currentIndex + 1].focus();
     }
+  } else {
+    // User clicked without selecting text - clear highlight mode
+    clearActiveField();
   }
-  // If no text selected, do NOT clear activeField - it stays "sticky"
-  // User might just be clicking/scrolling without intending to deactivate highlight mode
 });
 
 // ============================================================================
