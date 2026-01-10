@@ -44,29 +44,31 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.action.onClicked.addListener(async (tab) => {
   console.log('[ListingClipper] Extension icon clicked for tab:', tab.id, tab.url);
 
-  // Visual feedback - flash badge to show click received
-  chrome.action.setBadgeText({ text: '...' });
-  chrome.action.setBadgeBackgroundColor({ color: '#f97316' });
-
-  // Check if we can inject into this tab
+  // Check if we can work with this tab
   if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
-    console.log('[ListingClipper] Cannot inject into this URL:', tab.url);
-    chrome.action.setBadgeText({ text: 'ERR' });
+    console.log('[ListingClipper] Cannot work with this URL:', tab.url);
     return;
   }
 
-  // Simply inject panel.js - it handles toggle vs create internally
+  // Try message passing first (content script already loaded on supported sites)
+  try {
+    const response = await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' });
+    console.log('[ListingClipper] Toggle via message:', response);
+    return; // Success - done
+  } catch (error) {
+    // Content script not loaded - inject it
+    console.log('[ListingClipper] Content script not loaded, injecting...');
+  }
+
+  // Inject panel.js for unsupported sites or if content script failed
   try {
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ['panel.js']
     });
-    console.log('[ListingClipper] Panel script executed');
-    chrome.action.setBadgeText({ text: 'OK' });
-    setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1000);
+    console.log('[ListingClipper] Panel script injected');
   } catch (error) {
     console.error('[ListingClipper] Failed to inject:', error);
-    chrome.action.setBadgeText({ text: 'ERR' });
   }
 });
 
