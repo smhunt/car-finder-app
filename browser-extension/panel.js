@@ -6,34 +6,15 @@
 (function() {
 'use strict';
 
-// Check if already initialized (prevents duplicate listeners)
-if (window.__evClipperInitialized) {
-  // Just toggle the panel
-  const panel = document.getElementById('ev-clipper-panel');
-  if (panel) {
-    panel.classList.toggle('hidden');
-    console.log('[EV Clipper] Toggled panel:', !panel.classList.contains('hidden') ? 'visible' : 'hidden');
-  }
-  return;
+// Check if panel already exists in DOM - if so, just toggle it
+const existingPanel = document.getElementById('ev-clipper-panel');
+if (existingPanel) {
+  existingPanel.classList.toggle('hidden');
+  console.log('[EV Clipper] Toggled existing panel:', !existingPanel.classList.contains('hidden') ? 'visible' : 'hidden');
+  return; // Exit - don't reinitialize
 }
-window.__evClipperInitialized = true;
 
-// Listen for toggle messages from background script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'TOGGLE_PANEL') {
-    const panel = document.getElementById('ev-clipper-panel');
-    if (panel) {
-      panel.classList.toggle('hidden');
-      console.log('[EV Clipper] Toggled via message:', !panel.classList.contains('hidden') ? 'visible' : 'hidden');
-      sendResponse({ success: true, visible: !panel.classList.contains('hidden') });
-    } else {
-      sendResponse({ success: false, error: 'Panel not found' });
-    }
-  }
-  return true;
-});
-
-console.log('[EV Clipper] Initializing panel...');
+console.log('[EV Clipper] Initializing new panel...');
 
 // Panel state (local to this execution)
 let panelVisible = false;
